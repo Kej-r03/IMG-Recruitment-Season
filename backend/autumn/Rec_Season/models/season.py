@@ -1,5 +1,6 @@
+from pickle import TRUE
 from django.db import models
-from models import project
+# from .project import Project
 from constant import *
 from django.contrib.auth.models import AbstractUser
 # Create your models here.
@@ -11,19 +12,30 @@ class Season(models.Model):
     def __str__(self):
         return self.season_year
     
+class Project(models.Model):
+    project_name=models.CharField(max_length=200)
+    details=models.TextField()
+    # score=models.ForeignKey(Evaluation,on_delete=models.CASCADE)
+    marks=models.IntegerField()
+    remarks=models.CharField(max_length=200)
+
+    def __str__(self):
+        return self.project_name
+
+
 class Candidate(models.Model):
     name=models.CharField(max_length=50)
-    enrolment=models.IntegerField()
+    enrolment=models.IntegerField(null=TRUE,blank=TRUE)
     email=models.EmailField(max_length=254)
     phone=models.IntegerField()
-    current_year=models.IntegerField()
+    current_year=models.IntegerField(null=TRUE,blank=TRUE)
 
     def __str__(self):
         return self.name
     
 class CandidateSeasonData(models.Model): #stores those data about candidate that vary in different seasons
     candidate=models.ForeignKey(Candidate,on_delete=models.CASCADE)
-    project_name=models.OneToOneField(project.Project)
+    project_name=models.OneToOneField(Project, on_delete=models.CASCADE)
     test=models.BooleanField()#if appeared for the test, then only deal with test evaulation
     status=models.CharField(max_length=100)#status in the season
     season=models.ForeignKey(Season,on_delete=models.CASCADE)
@@ -34,8 +46,8 @@ class CandidateSeasonData(models.Model): #stores those data about candidate that
 class IMGMember(AbstractUser):
     name=models.CharField(max_length=50)
     branch=models.CharField(max_length=50)
-    enrolment=models.IntegerField()
-    current_year=models.IntegerField()  
+    enrolment=models.IntegerField(null=TRUE,blank=TRUE)
+    current_year=models.IntegerField(null=TRUE,blank=TRUE)  
 
     def __str__(self):
         return self.name
@@ -44,3 +56,4 @@ class IMGMemberSeasonData(models.Model):#stores those data about IMG_Member that
     member=models.ForeignKey(IMGMember,on_delete=models.CASCADE)
     season=models.ForeignKey(Season,on_delete=models.CASCADE)
     year_in_season=models.IntegerField()
+

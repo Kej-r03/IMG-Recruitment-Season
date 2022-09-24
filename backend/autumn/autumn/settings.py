@@ -31,7 +31,7 @@ DEBUG = True
 
 ALLOWED_HOSTS = []
 
-AUTH_USER_MODEL="autumn.IMGMember"
+AUTH_USER_MODEL="Rec_Season.IMGMember"
 # Application definition
 
 INSTALLED_APPS = [
@@ -43,6 +43,7 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     'rest_framework',
     'Rec_Season',
+    'oauth2_provider',
 ]
 
 MIDDLEWARE = [

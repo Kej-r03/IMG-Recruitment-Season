@@ -1,9 +1,9 @@
 from django.db import models
-from models import season
+from .season import Season,IMGMember
 
 class Paper(models.Model):
     no=models.IntegerField()
-    season=models.ForeignKey(season.Season, on_delete=models.CASCADE)
+    season=models.ForeignKey(Season, on_delete=models.CASCADE)
     timing=models.CharField(max_length=50)
 
     def __str__(self):
@@ -20,7 +20,7 @@ class TestSection(models.Model):
 class TestQuestion(models.Model):
     q_id=models.CharField(max_length=10)
     q_text=models.TextField()
-    assigned_to=models.ForeignKey(season.IMGMember,on_delete=models.CASCADE)
+    assigned_to=models.ForeignKey(IMGMember,on_delete=models.CASCADE)
     section=models.ForeignKey(TestSection, on_delete=models.CASCADE)
     total_marks=models.IntegerField()
 

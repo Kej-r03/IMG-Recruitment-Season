@@ -1,6 +1,7 @@
 from dataclasses import fields
 from rest_framework import serializers
 from .models import *
+from .models.season import Project
 
 
 #season.py model serializers
@@ -72,7 +73,6 @@ class ProjectSerializer(serializers.ModelSerializer):
     class Meta:
         model=Project
         fields='_all_'
-season
 
 
 #response.py model serializers

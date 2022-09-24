@@ -1,10 +1,10 @@
-from rest_framework import BasePermission, SAFE_METHODS
+from rest_framework.permissions import BasePermission
 
 class IsAllowedToAccessScore(BasePermission):
     message="Permission Denied"
 
     def has_object_permission(self, request, view,obj):
-        if request.year==2: #2nd yearites cannot access candidae scores
+        if request.year==2: #2nd yearites cannot access candidate scores
             return False
         
         return True

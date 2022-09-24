@@ -1,9 +1,9 @@
-from backend.autumn.Rec_Season.views import SeasonViewSet
-from rest_framework import routers
+from Rec_Season.views import SeasonViewSet
+from rest_framework.routers import DefaultRouter
 from .views import *
 from django.urls import path, include
 
-router=routers.DefualtRouter()
+router=DefaultRouter()
 
 router.register('season',SeasonViewSet)
 router.register('candidate',CandidateViewSet)

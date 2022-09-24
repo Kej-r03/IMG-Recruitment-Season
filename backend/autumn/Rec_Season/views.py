@@ -1,5 +1,5 @@
 from django.shortcuts import render
-from backend.autumn.Rec_Season.permissions import IsAllowedToAccessScore
+# from Rec_Season.permissions import IsAllowedToAccessScore
 from rest_framework import viewsets
 from .models import *
 from .serializers import *

@@ -1,0 +1,3 @@
+CLIENT_ID='8nAlCJ0uzzbPpVclxSKWS2ixPxI6H0kbGFeAbiwd'
+CLIENT_SECRET='7T6hIblrySuAcAyUsZWjT8mp14HKlMmIyMI1oREk6X2fzvMrKtyboD2b61JEKWkysStKz2GxYDgWfoOxTvCUsnd5UpS4y0bA1LdLHNmygWsmyYu0wfHpyNunLrKy1W4W'
+REDIRECT_URI='http://localhost:8000/login/login2/'

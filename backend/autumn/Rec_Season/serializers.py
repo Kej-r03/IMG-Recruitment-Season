@@ -1,4 +1,4 @@
-from dataclasses import fields
+# from dataclasses import fields
 from rest_framework import serializers
 from .models import *
 from .models.season import Project
@@ -24,13 +24,6 @@ class IMGMemberSerializer(serializers.ModelSerializer):
     class Meta:
         model=IMGMember
         fields='_all_'
-
-class IMGMemberSeasonDataSerializer(serializers.ModelSerializer):
-    class Meta:
-        model=IMGMemberSeasonData
-        fields='_all_'
-
-
 
 #test.py model serializers
 class PaperSerializer(serializers.ModelSerializer):

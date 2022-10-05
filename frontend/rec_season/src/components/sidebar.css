@@ -1,0 +1,12 @@
+.sidebar{
+    background-color: rgb(30, 86, 125);
+    text-align: center;
+    width:20vw;
+    height:100vh;
+    /* color: white */
+
+}
+
+.app-bar{
+    background-color: black;
+}

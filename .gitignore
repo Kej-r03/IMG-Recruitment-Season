@@ -1,2 +1,4 @@
 .env
 **/__pycache__/
+Rec_Season/oauth_info.py
+node_modules

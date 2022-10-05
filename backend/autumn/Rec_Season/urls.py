@@ -1,15 +1,16 @@
 from Rec_Season.views import SeasonViewSet
 from rest_framework.routers import DefaultRouter
 from .views import *
+from . import views
 from django.urls import path, include
 
 router=DefaultRouter()
 
+router.register('login',IMGMemberLoginViewSet)
 router.register('season',SeasonViewSet)
 router.register('candidate',CandidateViewSet)
 router.register('candidate_season_data',CandidateSeasonDataViewSet)
 router.register('img_member',IMGMemberViewSet)
-router.register('img_member_season_data',IMGMemberSeasonDataViewSet)
 
 router.register('paper',PaperViewSet)
 router.register('testsection',TestQuestionViewSet)
@@ -25,4 +26,7 @@ router.register('project',ProjectViewSet)
 router.register('testresponse',TestResponseViewSet)
 router.register('interviewresponse',InterviewResponseViewSet)
 
-urlpatterns=[ path('',include(router.urls)),]
+urlpatterns=[ path('',include(router.urls)),
+# path('login1/',views.login1,name='login1-oauth'),
+# path('login2/',views.login2,name="login2_oauth"),
+]

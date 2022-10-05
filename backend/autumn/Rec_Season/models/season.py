@@ -1,4 +1,3 @@
-from pickle import TRUE
 from django.db import models
 # from .project import Project
 from constant import *
@@ -25,10 +24,10 @@ class Project(models.Model):
 
 class Candidate(models.Model):
     name=models.CharField(max_length=50)
-    enrolment=models.IntegerField(null=TRUE,blank=TRUE)
+    enrolment=models.IntegerField(null=True,blank=True)
     email=models.EmailField(max_length=254)
     phone=models.IntegerField()
-    current_year=models.IntegerField(null=TRUE,blank=TRUE)
+    current_year=models.IntegerField(null=True,blank=True)
 
     def __str__(self):
         return self.name
@@ -46,14 +45,9 @@ class CandidateSeasonData(models.Model): #stores those data about candidate that
 class IMGMember(AbstractUser):
     name=models.CharField(max_length=50)
     branch=models.CharField(max_length=50)
-    enrolment=models.IntegerField(null=TRUE,blank=TRUE)
-    current_year=models.IntegerField(null=TRUE,blank=TRUE)  
+    enrolment=models.IntegerField(null=True,blank=True)
+    current_year=models.IntegerField(null=True,blank=True)  
 
     def __str__(self):
         return self.name
-
-class IMGMemberSeasonData(models.Model):#stores those data about IMG_Member that vary in different seasons
-    member=models.ForeignKey(IMGMember,on_delete=models.CASCADE)
-    season=models.ForeignKey(Season,on_delete=models.CASCADE)
-    year_in_season=models.IntegerField()
 

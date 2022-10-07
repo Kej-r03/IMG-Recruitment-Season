@@ -1,33 +1,23 @@
-// import logo from './logo.svg';
 import './App.css';
 import React from 'react'
-import SideList from './components/sidebar';
-import ButtonAppBar from './components/appbar';
-import MenuIcon from '@mui/icons-material/Menu';
-import { CssBaseline } from '@mui/material';
+import Home from './components/Home';
+import Test from './components/Test';
+import Interview from './components/Interview';
+import Evaluate from './components/Evaluate';
+import { BrowserRouter, Routes, Route } from "react-router-dom";
+import Dashboard from './components/Dashboard';
 
 function App() {
   return (
-    <div className="App">
-      {/* <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.js</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        > */}
-          {/* Learn React */}
-          
-          {/* <ButtonAppBar />, */}
-          <SideList />
-          
-        {/* </a>
-      </header> */}
-    </div>
+    <BrowserRouter>
+    <Routes>
+      <Route path="" element={<Home/>}></Route>
+      <Route path="test" element={<Test/>}></Route>
+      <Route path="interview" element={<Interview/>}></Route>
+      <Route path="dashboard" element={<Dashboard/>}></Route>
+      <Route path="evaluate" element={<Evaluate />}></Route>
+    </Routes>
+    </BrowserRouter>
   );
 }
 

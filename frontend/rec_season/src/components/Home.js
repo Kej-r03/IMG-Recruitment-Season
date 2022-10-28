@@ -10,13 +10,12 @@ import ExpandLess from '@mui/icons-material/ExpandLess';
 import ExpandMore from '@mui/icons-material/ExpandMore';
 import AddIcon from '@mui/icons-material/Add';
 import LoginIcon from '@mui/icons-material/Login'
-import Image from './rec2.webp';
-import Img from './brush.webp'
+import Image from './images/rec2.webp';
+import Img from './images/brush.webp'
 import axios from 'axios';
 import {CLIENT_ID,CLIENT_SECRET,REDIRECT_URI} from './oauth_info.js'
 import './Home.css'
 
-//how to authenticate user (deal with isAuthenticated permissions)
 
 const theme=createTheme({
     palette:{
@@ -26,6 +25,9 @@ const theme=createTheme({
     },
 })
 
+axios.defaults.withCredentials = true;
+axios.defaults.xsrfHeaderName = 'X-CSRFTOKEN';
+axios.defaults.xsrfCookieName = 'csrftoken'
 
 export default function Home(){
     // const [open, setOpen] = React.useState(-1);

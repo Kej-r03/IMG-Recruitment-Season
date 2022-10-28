@@ -12,7 +12,9 @@ import NavBar from "./NavBar";
 import { useParams } from "react-router-dom";
 
 
-
+axios.defaults.withCredentials = true;
+axios.defaults.xsrfHeaderName = 'X-CSRFTOKEN';
+axios.defaults.xsrfCookieName = 'csrftoken'
 const theme=createTheme({
     palette:{
         primary: {

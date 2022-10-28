@@ -18,6 +18,9 @@ const theme=createTheme({
     },
 })
 
+axios.defaults.withCredentials = true;
+axios.defaults.xsrfHeaderName = 'X-CSRFTOKEN';
+axios.defaults.xsrfCookieName = 'csrftoken'
 
 export default function Interview(){
 

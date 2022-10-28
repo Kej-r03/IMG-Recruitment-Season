@@ -2,7 +2,9 @@ import { TableContainer,Table,Menu,MenuItem, Checkbox,TableBody,Button,Modal,Box
 import axios from "axios";
 import React, { useEffect } from "react";
 
-
+axios.defaults.withCredentials = true;
+axios.defaults.xsrfHeaderName = 'X-CSRFTOKEN';
+axios.defaults.xsrfCookieName = 'csrftoken'
 const headers=[{value:'Sl No'},{value:'Name'},{value:'Enrolment No'},{value:'Branch'},{value:'Email'},{value:'Phone'}]
 export default function Selected(props){
 

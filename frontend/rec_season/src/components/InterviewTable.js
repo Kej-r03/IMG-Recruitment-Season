@@ -6,7 +6,9 @@ import { FormLabel,RadioGroup,Radio,FormControlLabel } from '@mui/material';
 import FilterListIcon from '@mui/icons-material/FilterList';
 
 
-
+axios.defaults.withCredentials = true;
+axios.defaults.xsrfHeaderName = 'X-CSRFTOKEN';
+axios.defaults.xsrfCookieName = 'csrftoken'
 const headers=[{value:'Sl No'},{value:"Name"},{value:'Phone'},{value:'Status'},{value:'Call Notes'},{value:'Slot Timings'},{value:'Marks'},{value:'Remarks'}]
 export default function InterviewTable(props)
 {
@@ -276,7 +278,7 @@ function InterviewTableBody(props){
             <TableCell>{row.phone}</TableCell>
             <TableCell onClick={()=>{handleOpenModal(row.id,row.status,row.call_notes,row.marks,row.remarks,row.slot_timing)}} >{row.status}</TableCell>
             <TableCell onClick={()=>{handleOpenModal(row.id,row.status,row.call_notes,row.marks,row.remarks,row.slot_timing)}} >{row.call_notes}</TableCell>
-            <TableCell onClick={()=>{handleOpenModal(row.id,row.status,row.call_notes,row.marks,row.remarks,row.slot_timing)}} >{row.slot_timing.substring(0,10)+" / "+row.slot_timing.substring(11,19)}</TableCell>
+            <TableCell onClick={()=>{handleOpenModal(row.id,row.status,row.call_notes,row.marks,row.remarks,row.slot_timing)}} >{row.slot_timing && row.slot_timing.substring(0,10)+" / "+row.slot_timing.substring(11,19)}</TableCell>
             <TableCell onClick={()=>{handleOpenModal(row.id,row.status,row.call_notes,row.marks,row.remarks,row.slot_timing)}} >{row.marks}</TableCell>
             <TableCell onClick={()=>{handleOpenModal(row.id,row.status,row.call_notes,row.marks,row.remarks,row.slot_timing)}} >{row.remarks}</TableCell>          
             </TableRow>

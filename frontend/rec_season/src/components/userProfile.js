@@ -15,7 +15,9 @@ const theme=createTheme({
     },
 })
 
-
+axios.defaults.withCredentials = true;
+axios.defaults.xsrfHeaderName = 'X-CSRFTOKEN';
+axios.defaults.xsrfCookieName = 'csrftoken'
 export default function ProfilePage(){
 
     const [user,setUser]=React.useState('')
@@ -64,7 +66,7 @@ export default function ProfilePage(){
                     </Grid>
                 </Toolbar>
 
-                <Avatar variant="square" sx={{height:"25vh", width:"15vw", m:4, mb:"3vh",border:1}} src={require("./user.jpg")} />
+                <Avatar variant="square" sx={{height:"25vh", width:"15vw", m:4, mb:"3vh",border:1}} src={require("./images/user.jpg")} />
                 <Divider />
 
                 <Box sx={{p:"4vh"}}>

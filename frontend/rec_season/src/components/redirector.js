@@ -1,6 +1,7 @@
 import axios from "axios";
 import React from "react";
 
+axios.defaults.withCredentials = true;
 export default function Rd(){
     const thisUrl=window.location.href;
     const code=thisUrl.slice(thisUrl.indexOf('=')+1,thisUrl.indexOf('&'))

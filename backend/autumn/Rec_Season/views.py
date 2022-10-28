@@ -20,23 +20,23 @@ from django.db.models import Count
 
 #season.py model viewsets
 class SeasonViewSet(viewsets.ModelViewSet):
-    permission_classes=[AllowAny]
+    permission_classes=[IsAuthenticated]
     queryset=Season.objects.all()
     serializer_class=SeasonSerializer
 
 class CandidateViewSet(viewsets.ModelViewSet):
-    permission_classes=[AllowAny]
+    permission_classes=[IsAuthenticated]
     queryset=Candidate.objects.all()
     serializer_class=CandidateSerializer
 
 
 class CandidateSeasonDataViewSet(viewsets.ModelViewSet):
-    permission_classes=[AllowAny] #AllowAny
+    permission_classes=[IsAuthenticated] 
     queryset=CandidateSeasonData.objects.all()
     serializer_class=CandidateSeasonDataSerializer
 
 
-    @action(detail=False,methods=['POST'])
+    @action(detail=False,methods=['POST'],permission_classes=(IsAuthenticated,))
     def create_from_csv(self,request): #used in Form
         df=pd.read_csv(request.FILES['File'])
         for i in range(df.shape[0]):
@@ -196,7 +196,7 @@ class CandidateSeasonDataViewSet(viewsets.ModelViewSet):
 
 
 
-    @action(detail=False,methods=['POST'])
+    @action(detail=False,methods=['POST'],permission_classes=(IsAuthenticated,))
     def move_to_test(self,request): #used in InterviewTable of Dashboard
         id=request.data['id']
         c=CandidateSeasonData.objects.get(id=id)
@@ -212,7 +212,7 @@ class CandidateSeasonDataViewSet(viewsets.ModelViewSet):
 
 
 
-    @action(detail=False,methods=['POST'])
+    @action(detail=False,methods=['POST'],permission_classes=(IsAuthenticated,))
     def move_to_selected(self,request): #used in TestTable,InterviewTable of Dashboard
         id=request.data['id']
         c=CandidateSeasonData.objects.get(id=id)
@@ -228,7 +228,7 @@ class CandidateSeasonDataViewSet(viewsets.ModelViewSet):
 
 
     
-    @action(detail=False,methods=['POST'])
+    @action(detail=False,methods=['POST'],permission_classes=(IsAuthenticated,))
     def move_to_interview(self,request): #used in TestTable,InterviewTable of Dashboard
         candidate_id=request.data['candidate_id']
         round_id=request.data['round_id']
@@ -261,7 +261,7 @@ class CandidateSeasonDataViewSet(viewsets.ModelViewSet):
 
     
 class IMGMemberViewSet(viewsets.ModelViewSet):
-    permission_classes=[AllowAny]
+    permission_classes=[IsAuthenticated]
     queryset=IMGMember.objects.all()
     serializer_class=IMGMemberSerializer
 
@@ -346,14 +346,14 @@ class IMGMemberLoginViewSet(viewsets.ModelViewSet):
 
     
 class ProjectViewSet(viewsets.ModelViewSet):
-    permission_classes=[AllowAny]
+    permission_classes=[IsAuthenticated]
     queryset=Project.objects.all()
     serializer_class=ProjectSerializer
 
     
 #test.py model viewsets
 class PaperViewSet(viewsets.ModelViewSet):
-    permission_classes=[AllowAny]
+    permission_classes=[IsAuthenticated]
     queryset=Paper.objects.all()
     serializer_class=PaperSerializer
 
@@ -364,7 +364,7 @@ class PaperViewSet(viewsets.ModelViewSet):
         res=Response(papers)
         return res
 
-    @action(detail=False, methods=['POST'])
+    @action(detail=False, methods=['POST'],permission_classes=(IsAuthenticated,))
     def create_paper(self,request):#used in Test
         season_id=request.data['season_id']
         timing=request.data['timing']
@@ -375,7 +375,7 @@ class PaperViewSet(viewsets.ModelViewSet):
         return HttpResponse("Done")
 
 class TestSectionViewSet(viewsets.ModelViewSet):
-    permission_classes=[AllowAny]
+    permission_classes=[IsAuthenticated]
     queryset=TestSection.objects.all()
     serializer_class=TestSectionSerializer
 
@@ -397,7 +397,7 @@ class TestSectionViewSet(viewsets.ModelViewSet):
         res=Response(sections)
         return res
 
-    @action(detail=False,methods=['POST'])
+    @action(detail=False,methods=['POST'],permission_classes=(IsAuthenticated,))
     def update_weightage(self,request):#used in Test
         id=request.data['id']
         weightage=request.data['weightage']
@@ -406,7 +406,7 @@ class TestSectionViewSet(viewsets.ModelViewSet):
         section.save()
         return HttpResponse('Done')
 
-    @action(detail=False,methods=['POST'])
+    @action(detail=False,methods=['POST'],permission_classes=(IsAuthenticated,))
     def create_section(self,request): #used in Test
         paper_id=request.data['paper_id']
         percentage_weightage=request.data['percent_weightage']
@@ -422,9 +422,9 @@ class TestQuestionViewSet(viewsets.ModelViewSet):
 
     def get_permissions(self):
         if self.request.method=='GET':
-            self.permission_classes=[AllowAny]
+            self.permission_classes=[IsAuthenticated]
         elif self.request.method=='POST' or self.request.method=='DELETE':
-            self.permission_classes=[AllowAny,isNot2ndYear]
+            self.permission_classes=[IsAuthenticated,isNot2ndYear]
         
         return super(TestQuestionViewSet,self).get_permissions()
 
@@ -433,7 +433,7 @@ class TestQuestionViewSet(viewsets.ModelViewSet):
         queryset=TestQuestion.objects.filter(section__paper_id=paper_id) #return those test questions whose 'section' fields have paper_id=paper_id
         return queryset
 
-    @action(detail=False,methods=['POST'])
+    @action(detail=False,methods=['POST'],permission_classes=(IsAuthenticated,))
     def update_question(self,request): #used in Test
         id=request.data['id']
         q_text=request.data['q_text']
@@ -446,7 +446,7 @@ class TestQuestionViewSet(viewsets.ModelViewSet):
         ques.save()
         return HttpResponse("Done")
 
-    @action(detail=False,methods=['POST'])
+    @action(detail=False,methods=['POST'],permission_classes=(IsAuthenticated,))
     def create_question(self,request): #used in Test
         section_id=request.data['id']
         q_id=request.data['q_id']
@@ -461,7 +461,7 @@ class TestQuestionViewSet(viewsets.ModelViewSet):
 
 #interview.py model viewsets
 class InterviewRoundsViewSet(viewsets.ModelViewSet):
-    permission_classes=[AllowAny]
+    permission_classes=[IsAuthenticated]
     queryset=InterviewRounds.objects.all()
     serializer_class=InterviewRoundsSerializer
 
@@ -517,7 +517,7 @@ class InterviewRoundsViewSet(viewsets.ModelViewSet):
 
 
 class InterviewViewSet(viewsets.ModelViewSet):
-    permission_classes=[AllowAny]
+    permission_classes=[IsAuthenticated]
     queryset=Interview.objects.all()
     serializer_class=InterviewSerializer
 
@@ -550,7 +550,7 @@ class InterviewViewSet(viewsets.ModelViewSet):
 
 
 class InterviewPanelViewSet(viewsets.ModelViewSet):
-    permission_classes=[AllowAny]
+    permission_classes=[IsAuthenticated]
     queryset=InterviewPanel.objects.all()
     serializer_class=InterviewPanelSerializer
 
@@ -650,7 +650,7 @@ class InterviewPanelViewSet(viewsets.ModelViewSet):
         return res
 
     
-    @action(detail=False,methods=['POST'])
+    @action(detail=False,methods=['POST'],permission_classes=(IsAuthenticated,))
     def update_interview(self,request): #used in Interview
         slot_timing=request.data['timing']
         location=request.data['location']
@@ -678,7 +678,7 @@ class InterviewPanelViewSet(viewsets.ModelViewSet):
 
 #response.py model viewsets
 class TestResponseViewSet(viewsets.ModelViewSet):
-    permission_classes=[AllowAny]
+    permission_classes=[IsAuthenticated]
     queryset=TestResponse.objects.all()
     serializer_class=TestResponseSerializer
 
@@ -689,7 +689,7 @@ class TestResponseViewSet(viewsets.ModelViewSet):
         
         return queryset
     
-    @action(detail=False,methods=['POST'])
+    @action(detail=False,methods=['POST'],permission_classes=(IsAuthenticated,))
     def update_marks(self,request):#used  in TestTable of Dashboard
         marks=request.data['marks']
         remarks=request.data['remarks']
@@ -712,16 +712,16 @@ class TestResponseViewSet(viewsets.ModelViewSet):
 
 
 class EvaluationViewSet(viewsets.ModelViewSet):
-    permission_classes=[AllowAny,isNot2ndYear]
+    permission_classes=[IsAuthenticated,isNot2ndYear]
     queryset=Evaluation.objects.all()
     serializer_class=EvaluationSerializer
 
 class InterviewResponseViewSet(viewsets.ModelViewSet):
-    permission_classes=[AllowAny,isNot2ndYear]
+    permission_classes=[IsAuthenticated,isNot2ndYear]
     queryset=InterviewResponse.objects.all()
     serializer_class=InterviewResponseSerializer
 
-    @action(detail=False,methods=['POST'])
+    @action(detail=False,methods=['POST'],permission_classes=(IsAuthenticated,))
     def update_marks(self,request):#used in InterviewTable of Dashboard
         timing=request.data['timing']
         marks=request.data['marks']

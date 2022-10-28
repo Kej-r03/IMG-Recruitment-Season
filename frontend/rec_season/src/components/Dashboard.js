@@ -13,8 +13,6 @@ import NavBar from "./NavBar";
 import Account from "./Account";
 import { useParams } from "react-router-dom";
 
-//add filter for top X candidates based on weightage
-
 
 
 const theme=createTheme({
@@ -27,7 +25,9 @@ const theme=createTheme({
         }
     },
 })
-
+axios.defaults.withCredentials = true;
+axios.defaults.xsrfHeaderName = 'X-CSRFTOKEN';
+axios.defaults.xsrfCookieName = 'csrftoken'
 
 export default function Dashboard(){
 
@@ -88,7 +88,7 @@ function RoundTab(props){
     const [int_rounds,setInt_Rounds]=React.useState([])
     const [test_papers,setTest_Papers]=React.useState([])
     useEffect(()=>{
-        axios.defaults.withCredentials = true;
+        
         axios
         .get("http://localhost:8000/paper/get_papers/",{params:{season:season_id}},{withCredentials:true})
         .then(function(response){

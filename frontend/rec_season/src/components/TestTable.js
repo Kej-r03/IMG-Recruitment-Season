@@ -7,6 +7,9 @@ import FilterListIcon from '@mui/icons-material/FilterList';
 
 const headCells=[{id:"slno",value:"Sl No"},{id:"name",value:"Name"},{id: "enrolment",value:"Enrolment No"},{id:"eval_status",value:'Evaluation Status'}]
 //NOTE: id must be same as objects' keys
+axios.defaults.withCredentials = true;
+axios.defaults.xsrfHeaderName = 'X-CSRFTOKEN';
+axios.defaults.xsrfCookieName = 'csrftoken'
 
 export default function TestTable(props){
 
@@ -21,11 +24,13 @@ export default function TestTable(props){
             axios
             .get("http://localhost:8000/testsection/get_sections/",{params:{paper_id:test_papers[value].id}},{withCredentials:true})
             .then(function(response){
+                console.log(response.data)
                 setTestSections(response.data)
             })
             axios
             .get("http://localhost:8000/candidate_season_data/get_marks/",{params:{paper_id:test_papers[value].id}},{withCredentials:true})
             .then(function(response){
+                console.log(response.data)
                 setRows(response.data)
                 setFilteredRows(response.data)
             })
@@ -230,7 +235,7 @@ export default function TestTable(props){
                 ))}
 
                 {testSections.map((section)=>(
-                    <TableCell colSpan={section.ques_list.length} align="center">
+                    <TableCell colSpan={section.ques_list.length+1} align="center">
                     <Typography sx={{fontWeight:'bold', fontSize:20}}>
                        {section.section_name}
                        </Typography>
@@ -244,11 +249,16 @@ export default function TestTable(props){
                     <>
                     {section.ques_list.map((question)=>(
                     <TableCell>
-                        <Typography sx={{fontWeight:'bold', fontSize:20}} align="center">
+                        <Typography sx={{fontWeight:'bold', fontSize:15}} align="center">
                         <span title={question.q_text}>Q_ID{question.q_id}</span>
                         </Typography>
                     </TableCell>
                     ))}
+                    <TableCell>
+                        <Typography sx={{fontWeight:'bold', fontSize:20}} align="center">
+                        Total
+                        </Typography>
+                    </TableCell>
                     </>
                 ))}
 
@@ -404,6 +414,11 @@ function EnhancedTableBody(props){
                     ))}
                     </TableCell>
                 ))}
+                <TableCell align="center" sx={{fontWeight:'bold'}}>
+                    {row.section_total_list.map((total)=>(
+                        section.id==total.section_id?<div>{total.total}</div>:null
+                    ))}
+                </TableCell>
                 </>
             ))} 
 

@@ -19,9 +19,10 @@ const theme=createTheme({
         }
     },
 })
-
+axios.defaults.withCredentials = true;
+axios.defaults.xsrfHeaderName = 'X-CSRFTOKEN';
+axios.defaults.xsrfCookieName = 'csrftoken'
 const ways_to_enrol=["Projects","Recruitment Test"];
-const breadcrumbs=["Home","Candidate List"];
 
 export default function CandidateList(){
     

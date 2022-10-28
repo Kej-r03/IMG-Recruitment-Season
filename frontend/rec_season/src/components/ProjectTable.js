@@ -5,7 +5,9 @@ import React, { useEffect } from "react";
 import FilterListIcon from '@mui/icons-material/FilterList';
 
 
-
+axios.defaults.withCredentials = true;
+axios.defaults.xsrfHeaderName = 'X-CSRFTOKEN';
+axios.defaults.xsrfCookieName = 'csrftoken'
 const headCells=[{id:'slno',value:"Sl No"},{id:'name',value:'Name'},{id:'enrolment',value:'Enrolment No'},{id:'project_name',value:'Project Name'},{id:'marks',value:'Marks'},{id:'remarks',value:'Remarks'}]
 export default function Project(props)
 {

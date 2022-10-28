@@ -1,7 +1,7 @@
 import { Button } from "@mui/material";
 import axios from "axios";
 import React from "react";
-
+axios.defaults.withCredentials = true;
 export default function Form(){
 
     const [selectedFile, setSelectedFile] = React.useState();

@@ -3,9 +3,10 @@ import React, { useEffect } from "react";
 import axios from 'axios';
 import AddIcon from '@mui/icons-material/Add';
 import Account from "./Account";
-import Image from "./dev.png"
 
-
+axios.defaults.withCredentials = true;
+axios.defaults.xsrfHeaderName = 'X-CSRFTOKEN';
+axios.defaults.xsrfCookieName = 'csrftoken'
 const theme=createTheme({
     palette:{
         primary: {
@@ -109,8 +110,8 @@ function AfterLoginPage(props){
                         sx={{cursor:'pointer'}}
                         >
                         <CardMedia>                            
-                            {card.role!="Des" && <Avatar variant="square" sx={{height:300,width:270, border:2}} src={require("./dev.png")} />}
-                            {card.role=="Des" && <Avatar variant="square" sx={{height:300,width:270, border:2}} src={require("./des.jpg")} />}
+                            {card.role!="Des" && <Avatar variant="square" sx={{height:300,width:270, border:2}} src={require("./images/dev.png")} />}
+                            {card.role=="Des" && <Avatar variant="square" sx={{height:300,width:270, border:2}} src={require("./images/des.jpg")} />}
                         </CardMedia>
                         <CardContent>
                         <Typography variant="h3">

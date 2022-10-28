@@ -13,7 +13,7 @@ router.register('candidate_season_data',CandidateSeasonDataViewSet)
 router.register('img_member',IMGMemberViewSet)
 
 router.register('paper',PaperViewSet)
-router.register('testsection',TestQuestionViewSet)
+router.register('testsection',TestSectionViewSet)
 router.register('testquestion',TestQuestionViewSet)
 
 router.register('int_rounds',InterviewRoundsViewSet)

@@ -11,7 +11,12 @@ import ExpandMore from '@mui/icons-material/ExpandMore';
 import AddIcon from '@mui/icons-material/Add';
 import LoginIcon from '@mui/icons-material/Login'
 import Image from './rec2.webp';
+import Img from './brush.webp'
 import axios from 'axios';
+import {CLIENT_ID,CLIENT_SECRET,REDIRECT_URI} from './oauth_info.js'
+import './Home.css'
+
+//how to authenticate user (deal with isAuthenticated permissions)
 
 const theme=createTheme({
     palette:{
@@ -21,27 +26,34 @@ const theme=createTheme({
     },
 })
 
-const Rec_Seasons=["1", "2","3","4","5"]
+
 export default function Home(){
-    const [open, setOpen] = React.useState(-1);
-    const handleClick = (season_no) => {
-        if(open!=season_no)
-        setOpen(season_no);
-        else
-        setOpen(-1);
-      };
+    // const [open, setOpen] = React.useState(-1);
+    // const handleClick = (season_no) => {
+    //     if(open!=season_no)
+    //     setOpen(season_no);
+    //     else
+    //     setOpen(-1);
+    //   };
+
+    const url="https://channeli.in/oauth/authorise/?client_id="+CLIENT_ID+"&redirect_uri="+REDIRECT_URI;
+
+    const login=()=>{
+        window.location.href=url;
+    }
+
     return (
     <ThemeProvider theme={theme}>
     <Box>
-    <AppBar sx={{ zIndex: (theme) => theme.zIndex.drawer + 1,height:'5.5vh' }}>
+    <AppBar sx={{ zIndex: (theme) => theme.zIndex.drawer + 1,height:'6.5vh' }}>
         <Toolbar>
-          <Typography variant="h6" sx={{ flexGrow: 1 }} textAlign="center">
-            Home
+          <Typography variant="h4" sx={{ flexGrow: 1, fontFamily:'cursive',fontSize:30}} textAlign="center">
+            Information Management Group
           </Typography>
         </Toolbar> 
     </AppBar> 
 
-    <Drawer variant="permanent" sx={{width: '15vw',[`& .MuiDrawer-paper`]: { width: '15vw'},}}> 
+    {/* <Drawer variant="permanent" sx={{width: '15vw',[`& .MuiDrawer-paper`]: { width: '15vw'},}}> 
         <Toolbar />
         <Toolbar>
         <Typography>
@@ -79,27 +91,39 @@ export default function Home(){
         <Button 
         variant="contained" 
         startIcon={<AddIcon />} 
-        sx={{width:'10vw', fontSize:10, position:'absolute',bottom:10, right:10}} 
-        disablePadding>
+        sx={{width:'10vw', fontSize:10, position:'absolute',bottom:10, right:10}}>
             Create New Season
         </Button>
-    </Drawer>
+    </Drawer> */}
 
-<Box component="div" sx={{p:'1vw',ml:'15vw', mt:'3vh', pb:'0'}}>
-    {/* used margin and padding to set correct position, combined with columnSpacing and number of columns */}
+<Box component="div" sx={{p:'1vw', mt:'3vh', pb:'0'}}>
 
-        <Grid container  columnSpacing={10} columns={13} sx={{height:'95vh'}}>
-          <Grid item md={10}
+        <Grid container  columnSpacing={20} columns={14} sx={{height:'95vh'}}>
+          <Grid item md={8}
           sx={{backgroundImage:`url(${Image})`,
-            backgroundRepeat: 'no-repeat',
-            
+            backgroundRepeat: 'no-repeat',            
             backgroundSize: 'cover',
             backgroundPosition: 'center',
             }}/>
 
-          <Grid item md={3} component={Paper}>
+          <Grid item md={6} component={Paper}>
+              <Box sx={{height:"60%", width:"40%",
+                backgroundImage:`url(${Img})`,
+                backgroundRepeat: 'no-repeat',                
+                backgroundSize: 'cover',
+                backgroundPosition: 'center',
+                position:"absolute",right:30,top:'10vh'}}>
+            </Box>
+              <Typography sx={{fontWeight:"bold", fontSize:70,lineHeight:1.5,letterSpacing:-1,fontFamily:'Satisfy',
+              position:"absolute",right:"2%",top:'25vh'}} textAlign="center">
+                  
+                  An In-House Application For <br></br>
+                  Managing The
+                  Recruitments
+                  
+              </Typography>
               
-              <Button variant="contained" sx={{top:"10%",right:"15%",width:'15vw'}} onClick={()=>{axios.get("http://localhost:8000/login/login1/"); window.location.replace("http://localhost:8000/login/login1/");}} >
+              <Button variant="contained" sx={{position:"absolute" ,top:"55%",right:"12%",width:'20vw', height:'5vh'}} onClick={login} >
                   <LoginIcon sx={{mr:3}}/>
               <Typography>
                   Login with ChannelI

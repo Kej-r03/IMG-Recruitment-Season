@@ -1,47 +1,74 @@
-import { ThemeProvider, Button,Typography,Link,Breadcrumbs,createTheme,AppBar, Paper,Table, TablePagination,TableFooter, Toolbar,Box,Tabs,Tab,Divider, TableContainer, TableHead, TableRow, TableCell, TableBody, TableSortLabel, Checkbox } from "@mui/material";
-import React from "react";
+import { ThemeProvider,IconButton,Menu,MenuItem,Modal, TextField,Button,Typography,Link,Breadcrumbs,createTheme,AppBar, Paper,Table, TablePagination,TableFooter, Toolbar,Box,Tabs,Tab,Divider, TableContainer, TableHead, TableRow, TableCell, TableBody, TableSortLabel, Checkbox, FormLabel, Radio,RadioGroup, FormControlLabel ,FormControl} from "@mui/material";
+import React, { useEffect } from "react";
 import SearchOutlinedIcon from '@mui/icons-material/SearchOutlined';
+import AccountCircleIcon from '@mui/icons-material/AccountCircle';
 import AddIcon from '@mui/icons-material/Add';
+import axios from "axios";
+import FontWeight from "./testfile2";
+import TestTable from "./TestTable";
+import InterviewTable from "./InterviewTable";
+import Selected from "./SelectedTable";
+import Project from "./ProjectTable";
+import NavBar from "./NavBar";
+import Account from "./Account";
+import { useParams } from "react-router-dom";
+
+//add filter for top X candidates based on weightage
+
+
 
 const theme=createTheme({
-    palette:{   
+    palette:{
         primary: {
             main:"rgb(30, 86, 125)",
         },
+        secondary:{
+            main:"rgb(255,255,255)",
+        }
     },
 })
-const breadcrumbs=["Home","Dashboard"];
+
+
 export default function Dashboard(){
+
+    let {id}=useParams()
+
+    const [seasonYear,setSeasonYear]=React.useState()
+    const [seasonRole,setSeasonRole]=React.useState()
+    useEffect(()=>{
+        let url="http://localhost:8000/season/"+id+"/"
+    axios
+    .get(url,{withCredentials:true})
+    .then(function(response){
+        setSeasonYear(response.data.season_year)
+        setSeasonRole(response.data.role)
+    })
+    },[])
+
+
     return(
         <ThemeProvider theme={theme}>
             
-            <AppBar sx={{ zIndex: (theme) => theme.zIndex.drawer + 1, height:'5.5vh' }}>
-                <Toolbar>
-                    
-                <Typography variant="h6" sx={{flexGrow:1}} textAlign="center">
-                
-                    Dashboard
-                    
+            <AppBar sx={{ zIndex: (theme) => theme.zIndex.drawer + 1, height:'6.5vh' }}>
+                <Toolbar>                    
+                <Typography variant="h6" sx={{flexGrow:1,fontFamily:'cursive',fontSize:30}} textAlign="center">                
+                    Dashboard                    
                 </Typography>
-                
+                 <Account />
+                 <NavBar id={id}/>
                 </Toolbar>
             </AppBar>
+            
+            
+            
 
-            <Box sx={{p:5}}>
+            <Box sx={{p:10}}>
                 <Toolbar />
-                <Breadcrumbs separator=">" sx={{mb: 5}}>
-                    {breadcrumbs.map((item) =>(
-                        <>
-                        <Link>{item}</Link>
-                        </>
-                    ))}
-                </Breadcrumbs>
-                <Typography variant="h4" sx={{ml:4,mb:5}}>
-                    IMG Recruitment '22
+                <Typography variant="h4" sx={{mb:5}}>
+                    IMG Recruitment {seasonYear+", Role: "+(seasonRole==='1yDev'?'1st Year Developers':seasonRole=='2yDev'?"2nd Year Developers":"Designers")}
                 </Typography>
                 <Box>
-                    <RoundTab />
-                    <TableMain />
+                    <RoundTab season_id={id}/>
                 </Box>
             </Box>
         </ThemeProvider>
@@ -50,169 +77,69 @@ export default function Dashboard(){
 
 
 
+function RoundTab(props){
+    const {season_id}=props
 
-
-function TabPanel(props){
-    const { children, value, index } = props;
-    return (
-        <Typography hidden={value!==index}>
-        {children}
-        </Typography>
-    );
-}
-
-const rounds=[1,2,3];
-
-function RoundTab(){
-    const[value,setValue]=React.useState(0);
+    const[value,setValue]=React.useState(1);
     function handleChange(event,newValue){
         setValue(newValue);
     }
 
-    const [open, setOpen] = React.useState(false);
-    const handleOpen = () => setOpen(true);
-    const handleClose = () => setOpen(false);
+    const [int_rounds,setInt_Rounds]=React.useState([])
+    const [test_papers,setTest_Papers]=React.useState([])
+    useEffect(()=>{
+        axios.defaults.withCredentials = true;
+        axios
+        .get("http://localhost:8000/paper/get_papers/",{params:{season:season_id}},{withCredentials:true})
+        .then(function(response){
+            setTest_Papers(response.data)
+            setValue(0)
+        })
+        axios
+        .get("http://localhost:8000/int_rounds/get_interviews/",{params:{season:season_id}},{withCredentials:true})
+        .then(function(response){ 
+            setInt_Rounds(response.data)
+        })        
+    },[])
 
     return(
         <>
-        <Toolbar>
+        <Toolbar sx={{mb:5}}>
             <Tabs 
             value={value}
           onChange={handleChange}
           indicatorColor="primary"
-          textColor="primary"  >
-               {rounds.map((round) => (
+          textColor="primary">
+
+              {test_papers.map((paper,index) => (
                    
-                   <Tab label={`Round ${round}`} sx={{ml:3}}/>
+                   <Tab label={`Test Paper ${index+1}`} sx={{fontSize:17}} />
                    
                ))}
+
+                <Tab label={`Projects`} sx={{fontSize:17}} />
+
+               {int_rounds.map((round,index) => (
+                   
+                   <Tab label={`Interview Round ${index+1}`} sx={{fontSize:17}} />
+                   
+               ))}
+
+               <Tab label={`Selected`} sx={{fontSize:17}} />
           </Tabs>
-          {/* <Button variant="outlined" startIcon={<AddIcon />} sx={{position:"absolute", right:"25%"}}>Add Round</Button> */}
-          <SearchOutlinedIcon sx={{positon:"absolute",right:"10vw"}}/>
+          
         </Toolbar>
         
         <Divider />
+        
+        {value<test_papers.length &&<TestTable value={value} test_papers={test_papers} int_rounds={int_rounds}/>}
+        {value==test_papers.length && <Project int_rounds={int_rounds} season_id={season_id} />}
+        {value>=test_papers.length+1  && value<int_rounds.length+1+test_papers.length && <InterviewTable int_rounds={int_rounds} index={value-1-test_papers.length}/>}
+        {value>=test_papers.length+1+int_rounds.length && <Selected  int_rounds={int_rounds} season_id={season_id}/>}
         </>
     )
 }
 
 
 
-
-
-
-const headCells=[{id:"name"},{id: "calories"},{id:"fat"},{id:"Evaluation Status"},{id:"Section 1"},{id:"Section 2"}]
-
-function TableMain(){
-
-    const [order,setOrder]=React.useState('asc');//variable to store whether to sort by ascending order or descending order
-    const [orderBy,setOrderBy]=React.useState("Sl No");//variable to store column as per which table is sorted
-
-    let orderedRows=rows;
-
-    function createSortHandler(property){
-        const isAsc= orderBy === property && order==='asc';
-        setOrder(isAsc?'desc':'asc');
-        setOrderBy(property);
-        orderedRows=rows.sort((a,b)=>{
-            let ans=0;
-            if(a[orderBy]>b[orderBy])
-            ans=-1;
-            else
-            ans=1;
-
-            if(order==='asc')
-            return ans;
-            else
-            return -ans;
-        })
-        console.log(orderBy);
-        console.log(order);
-    }
-
-
-    return(
-        <TableContainer>
-        <Table>
-
-        <TableHead>
-            <TableRow>
-                <TableCell padding="checkbox"></TableCell>
-                {headCells.map((header)=>(
-                    <TableCell>
-                       <TableSortLabel 
-                       active={orderBy === header.id} //shows which column head is sorted
-                       direction={orderBy===header.id?order:'asc'} //if sorting is done as per the header column, order it in the given sense, else in ascending order
-                       onClick={()=>{createSortHandler(header.id)}}
-                       >
-                           {header.id}
-                        </TableSortLabel> 
-                    </TableCell>
-                ))}
-            </TableRow>
-        </TableHead>
-
-        <EnhancedTableBody orderedRows={orderedRows}/>
-
-        </Table>
-        </TableContainer>
-    )
-}
-
-function createData(name, calories, fat, carbs, protein) {
-    return { name, calories, fat, carbs, protein };
-  }
-  
-const rows = [
-    createData('Frozen yoghurt', 159, 6.0, 24, 4.0),
-    createData('Ice cream sandwich', 237, 9.0, 37, 4.3),
-    createData('Eclair', 262, 16.0, 24, 6.0),
-    createData('Cupcake', 305, 3.7, 67, 4.3),
-    createData('Gingerbread', 356, 16.0, 49, 3.9),
-  ];
-
-function EnhancedTableBody(props){
-    const {orderedRows}=props;
-    const [page,setPage]=React.useState(0);
-    const[rowsPerPage,setRowsPerPage]=React.useState(2);
-
-    const handleChangePage=(event,newPage) => {
-        setPage(newPage);
-    };
-
-    const handleChangeRowsPerPage = (event) => {
-        setRowsPerPage(parseInt(event.target.value));
-        setPage(0);
-      };
-
-    return(      
-        <>
-        <TableBody>
-        {(orderedRows.slice(page*rowsPerPage,(page+1)*rowsPerPage)).map((row,index)=>(
-            <TableRow>
-            <TableCell padding="checkbox"><Checkbox /></TableCell>
-            <TableCell>{index+1}</TableCell>
-            <TableCell>{row.name}</TableCell>
-            <TableCell>{row.calories}</TableCell>
-            <TableCell>{row.fat}</TableCell>
-            <TableCell>{row.carbs}</TableCell>
-            <TableCell>{row.protein}</TableCell>
-            </TableRow>
-        ))}
-        </TableBody>
-
-        <TableFooter>
-            <TableRow>
-                <TablePagination rowsPerPageOptions={[2,3,5]}
-                count={rows.length}
-                rowsPerPage={rowsPerPage}
-                page={page}
-                onPageChange={handleChangePage}
-                onRowsPerPageChange={handleChangeRowsPerPage}/>
-            </TableRow>
-        </TableFooter>
-        </>        
-        
-    )
-}
 

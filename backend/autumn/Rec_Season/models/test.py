@@ -4,10 +4,10 @@ from .season import Season,IMGMember
 class Paper(models.Model):
     no=models.IntegerField()
     season=models.ForeignKey(Season, on_delete=models.CASCADE)
-    timing=models.CharField(max_length=50)
+    timing=models.DateTimeField(null=True,blank=True)
 
     def __str__(self):
-        return self.no
+        return str(self.no)
 
 class TestSection(models.Model):
     paper=models.ForeignKey(Paper,on_delete=models.CASCADE)
@@ -15,7 +15,7 @@ class TestSection(models.Model):
     percent_weightage=models.DecimalField(max_digits=10,decimal_places=5)
 
     def __str__(self):
-        return self.section_name
+        return str(self.pk)
 
 class TestQuestion(models.Model):
     q_id=models.CharField(max_length=10)

@@ -29,13 +29,24 @@ SECRET_KEY = env('SECRET_KEY')
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = [
+]
 
 AUTH_USER_MODEL="Rec_Season.IMGMember"
 LOGIN_URL='admin/login/'
-# Application definition
+# Application definitio
+# CORS_ORIGIN_ALLOW_ALL=False
+# CORS_ALLOW_ALL_ORIGINS = True
+CORS_ORIGIN_WHITELIST=['http://localhost:3000',]
+CORS_ALLOWED_ORIGINS=['http://localhost:3000','http://127.0.0.1:3000']
+CSRF_TRUSTED_ORIGINS = [
+    'http://localhost:3000','http://127.0.0.1:3000'
+]
+CORS_ALLOW_CREDENTIALS=True
+
 
 INSTALLED_APPS = [
+    'channels',
     'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',
@@ -45,13 +56,16 @@ INSTALLED_APPS = [
     'rest_framework',
     'Rec_Season',
     'oauth2_provider',
+    'corsheaders',
 ]
 
 MIDDLEWARE = [
+    'corsheaders.middleware.CorsMiddleware',
     'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
+     "corsheaders.middleware.CorsPostCsrfMiddleware",
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
@@ -76,6 +90,7 @@ TEMPLATES = [
 ]
 
 WSGI_APPLICATION = 'autumn.wsgi.application'
+ASGI_APPLICATION = 'autumn.asgi.application'
 
 
 # Database
@@ -143,7 +158,14 @@ REST_FRAMEWORK = {
     'DEFAULT_AUTHENTICATION_CLASSES': (
         'oauth2_provider.contrib.rest_framework.OAuth2Authentication',
     ),
+    'DEFAULT_AUTHENTICATION_CLASSES': (
+        # 'rest_framework.authentication.TokenAuthentication',
+      'rest_framework.authentication.SessionAuthentication',
+    ),
+    
     # 'DEFAULT_PERMISSION_CLASSES':(
     #         'rest_framework.permissions.IsAuthenticated',
     #     )
 }
+
+AUTHENTICATION_BACKENDS = ('django.contrib.auth.backends.ModelBackend',)

@@ -20,4 +20,5 @@ urlpatterns = [
     path('admin/', admin.site.urls),
     path('',include("Rec_Season.urls")),
     path('o/', include('oauth2_provider.urls', namespace='oauth2_provider')),
+    path("api-auth/", include("rest_framework.urls")),
 ]

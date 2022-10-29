@@ -32,7 +32,7 @@ class CandidateViewSet(viewsets.ModelViewSet):
 
 
 class CandidateSeasonDataViewSet(viewsets.ModelViewSet):
-    permission_classes=[Nobody] 
+    permission_classes=[IsAuthenticated] 
     queryset=CandidateSeasonData.objects.all()
     serializer_class=CandidateSeasonDataSerializer
 
@@ -363,6 +363,22 @@ class ProjectViewSet(viewsets.ModelViewSet):
     queryset=Project.objects.all()
     serializer_class=ProjectSerializer
 
+    @action(detail=False,methods=['POST'],permission_classes=(IsAuthenticated,))
+    def update_project(self,request):
+        if request.user.current_year>2:
+            marks=request.data['marks']
+            remarks=request.data['remarks']
+            details=request.data['details']
+            project_name=request.data['project_name']
+            projectID=request.data['projectID']
+            p=Project.objects.get(id=projectID)
+            p.marks=marks
+            p.remarks=remarks
+            p.details=details
+            p.project_name=project_name
+            p.save()
+        return HttpResponse("Done")
+
     
 #test.py model viewsets
 class PaperViewSet(viewsets.ModelViewSet):
@@ -528,6 +544,16 @@ class InterviewRoundsViewSet(viewsets.ModelViewSet):
         
         res=Response(rows)
         return res
+
+    @action(detail=False,methods=['POST'],permission_classes=(IsAuthenticated,))
+    def create_interview_round(self,request):
+        round_no=request.data['round_no']
+        interview_type=request.data['interview_type']
+        season_id=request.data['season']
+        season=Season.objects.get(id=season_id)
+        ir=InterviewRounds(round_no=round_no,interview_type=interview_type,season=season)
+        ir.save()
+        return HttpResponse("Done")
 
 
 class InterviewViewSet(viewsets.ModelViewSet):

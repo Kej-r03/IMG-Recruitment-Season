@@ -129,12 +129,14 @@ function ProjectTableBody(props){
     const changeMarksRemarks=()=>{
         if(marks=="")
         marks=null
-        const params={marks:marks,remarks:remarks,details:details,project_name:projectName}
-        let url="http://localhost:8000/project/"+projectID+"/"
+        const params={marks:marks,remarks:remarks,details:details,project_name:projectName,projectID:projectID}
+        let url="http://localhost:8000/project/update_project/"
         axios
-        .put(url,params,{headers:{"Acess-Control-Allow-Methods":"PUT"}},{withCredentials:true})
-        handleCloseModal()
-        window.location.href=window.location.href  
+        .post(url,params,{headers:{"Content-Type":'application/json'}},{withCredentials:true})
+        .then(function(response){
+            handleCloseModal()
+            window.location.href=window.location.href  
+        })
     }
 
 

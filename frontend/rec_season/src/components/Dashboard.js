@@ -119,9 +119,12 @@ function RoundTab(props){
     const createInterview=()=>{
         const params=JSON.stringify({"round_no":round_no,"interview_type":type.charAt(0),"season":season_id})
         axios
-        .post("http://localhost:8000/int_rounds/",params,{headers:{'Content-Type':'application/json'}},{withCredentials:true})
-        handleModalClose()
+        .post("http://localhost:8000/int_rounds/create_interview_round/",params,{headers:{'Content-Type':'application/json'}},{withCredentials:true})
+        .then(function(response){
+            handleModalClose()
         window.location.href=window.location.href
+        })
+        
     }
     return(
         <>

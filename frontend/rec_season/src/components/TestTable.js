@@ -375,8 +375,11 @@ function EnhancedTableBody(props){
             const params=JSON.stringify({"id":selected[i]})
             axios
             .post("http://localhost:8000/candidate_season_data/move_to_selected/",params,{headers:{'Content-Type':'application/json'}},{withCredentials:true})
+            .then(function(response){
+                window.location.href=window.location.href
+            })
         }
-        window.location.href=window.location.href
+        
 
     }
     const moveToInterview=(round_id)=>{
@@ -385,8 +388,11 @@ function EnhancedTableBody(props){
             const params=JSON.stringify({"candidate_id":selected[i],"round_id":round_id})
             axios
             .post("http://localhost:8000/candidate_season_data/move_to_interview/",params,{headers:{'Content-Type':'application/json'}},{withCredentials:true})
+            .then(function(response){
+                window.location.href=window.location.href
+            })
         }
-        window.location.href=window.location.href
+        
     }
 
 

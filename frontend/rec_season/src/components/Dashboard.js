@@ -4,7 +4,6 @@ import SearchOutlinedIcon from '@mui/icons-material/SearchOutlined';
 import AccountCircleIcon from '@mui/icons-material/AccountCircle';
 import AddIcon from '@mui/icons-material/Add';
 import axios from "axios";
-import FontWeight from "./testfile2";
 import TestTable from "./TestTable";
 import InterviewTable from "./InterviewTable";
 import Selected from "./SelectedTable";
@@ -151,7 +150,7 @@ function RoundTab(props){
           </Tabs>
 
           <Button variant="contained" startIcon={<AddIcon />} sx={{position:'absolute', right:'1vw', bottom:'13vh'}} onClick={handleModalOpen}>Add Interview Round</Button>
-          <Button variant="contained" startIcon={<AddIcon />} sx={{position:'absolute', right:'1vw', bottom:'9vh'}} onClick={()=>{window.location.href="http://localhost:3000/test/"+season_id+"/"}}>Add Paper</Button>
+          {IMGYear>2 && <Button variant="contained" startIcon={<AddIcon />} sx={{position:'absolute', right:'1vw', bottom:'9vh'}} onClick={()=>{window.location.href="http://localhost:3000/test/"+season_id+"/"}}>Add Paper</Button>}
           
           <Modal open={open} onClose={handleModalClose}>
           <Box sx={{height:"17vh", width:"15vw", position:"absolute", bgcolor:"background.paper", boxShadow:24, top:"50%",left:"50%",transform: 'translate(-50%, -50%)', p:3}}>

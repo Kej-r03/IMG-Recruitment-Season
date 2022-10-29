@@ -11,8 +11,6 @@ import Rd from './components/redirector';
 import ProfilePage from './components/userProfile';
 import CandidateList from './components/CandidateList';
 import Form from './components/Form';
-import TestFile from './components/testfile';
-import FontWeight from './components/testfile2';
 import axios from 'axios';
 import {useEffect} from 'react';
 
@@ -24,8 +22,6 @@ function App() {
       <Route path="" element={<NonLoginRoute><Home/></NonLoginRoute>}></Route>
       <Route path='redirector' element={<NonLoginRoute><Rd /></NonLoginRoute>}></Route>
       <Route path="onlogin" element={<PrivateRoute><OnLogin /></PrivateRoute>}></Route>
-      {/* <Route path="testfile" element={<TestFile />}></Route> */}
-      <Route path="testfile2" element={<FontWeight />}></Route>
       <Route path='form' element={<PrivateRoute><Form/></PrivateRoute>}></Route>
       <Route path='candidates/:id' element={<PrivateRoute><CandidateList /></PrivateRoute>}></Route>
       <Route path="test/:id" element={<PrivateRoute><Test/></PrivateRoute>}></Route>

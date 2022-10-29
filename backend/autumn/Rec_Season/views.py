@@ -26,13 +26,13 @@ class SeasonViewSet(viewsets.ModelViewSet):
     serializer_class=SeasonSerializer
 
 class CandidateViewSet(viewsets.ModelViewSet):
-    permission_classes=[IsAuthenticated]
+    permission_classes=[Nobody]
     queryset=Candidate.objects.all()
     serializer_class=CandidateSerializer
 
 
 class CandidateSeasonDataViewSet(viewsets.ModelViewSet):
-    permission_classes=[IsAuthenticated] 
+    permission_classes=[Nobody] 
     queryset=CandidateSeasonData.objects.all()
     serializer_class=CandidateSeasonDataSerializer
 
@@ -99,7 +99,7 @@ class CandidateSeasonDataViewSet(viewsets.ModelViewSet):
 
 
 
-    @action(detail=False)
+    @action(detail=False,permission_classes=(IsAuthenticated,))
     def get_marks(self,request): #used in TestTable of Dashboard
         paper_id=self.request.query_params.get('paper_id')
         paper=Paper.objects.get(id=paper_id)
@@ -139,7 +139,7 @@ class CandidateSeasonDataViewSet(viewsets.ModelViewSet):
                 total={"section_id":section['id'],"total":sum}
                 section_total_list.append(total)
         
-            if(request.user.current_year!=2):
+            if(request.user.current_year>2):
                 candidate.update({"mark_list":mark_list})
                 candidate.update({"section_total_list":section_total_list})
             if flag==0:
@@ -151,7 +151,7 @@ class CandidateSeasonDataViewSet(viewsets.ModelViewSet):
 
 
 
-    @action(detail=False)
+    @action(detail=False,permission_classes=(IsAuthenticated,))
     def get_selected(self,request):#used in SelectedTable of Dashboard
         season_id=self.request.query_params.get('season_id')
         selected_candidates=CandidateSeasonData.objects.filter(status='S',season=season_id).values()
@@ -166,7 +166,7 @@ class CandidateSeasonDataViewSet(viewsets.ModelViewSet):
         res=Response(selected_candidates)
         return res
 
-    @action(detail=False)
+    @action(detail=False,permission_classes=(IsAuthenticated,))
     def get_project_info(self,request): #used in ProjectTable of Dashboard
         season_id=self.request.query_params.get('season_id')
         null_project=Project.objects.get(project_name='nan')
@@ -187,7 +187,7 @@ class CandidateSeasonDataViewSet(viewsets.ModelViewSet):
             project_info=Project.objects.get(pk=project['project_name_id'])
             project.update({"project_name":project_info.project_name})
             project.update({"project_details":project_info.details})
-            if request.user.current_year!=2:
+            if request.user.current_year>2:
                 project.update({"marks":project_info.marks})
                 project.update({"remarks":project_info.remarks})
             candidate_info=Candidate.objects.get(pk=project['candidate_id'])
@@ -346,7 +346,7 @@ class IMGMemberLoginViewSet(viewsets.ModelViewSet):
         res=Response({'isLoggedIn':data},status = status.HTTP_200_OK)
         return res
 
-    @action(detail=False)
+    @action(detail=False,permission_classes=(IsAuthenticated,))
     def get_year(self,request): #used in dashboard,Test
         season_id=self.request.query_params.get('season_id')
         season=Season.objects.get(id=season_id)
@@ -359,18 +359,18 @@ class IMGMemberLoginViewSet(viewsets.ModelViewSet):
 
     
 class ProjectViewSet(viewsets.ModelViewSet):
-    permission_classes=[IsAuthenticated]
+    permission_classes=[Nobody]
     queryset=Project.objects.all()
     serializer_class=ProjectSerializer
 
     
 #test.py model viewsets
 class PaperViewSet(viewsets.ModelViewSet):
-    permission_classes=[IsAuthenticated]
+    permission_classes=[Nobody]
     queryset=Paper.objects.all()
     serializer_class=PaperSerializer
 
-    @action(detail=False)
+    @action(detail=False,permission_classes=(IsAuthenticated,))
     def get_papers(self,request):#used in dashboard,Test
         season=self.request.query_params.get('season')
         papers=Paper.objects.filter(season=season).values()
@@ -379,16 +379,17 @@ class PaperViewSet(viewsets.ModelViewSet):
 
     @action(detail=False, methods=['POST'],permission_classes=(IsAuthenticated,))
     def create_paper(self,request):#used in Test
-        season_id=request.data['season_id']
-        timing=request.data['timing']
-        no=request.data['no']
-        season=Season.objects.get(pk=season_id)
-        p=Paper(no=no,timing=timing,season=season)
-        p.save()
+        if request.user.current_year>2:
+            season_id=request.data['season_id']
+            timing=request.data['timing']
+            no=request.data['no']
+            season=Season.objects.get(pk=season_id)
+            p=Paper(no=no,timing=timing,season=season)
+            p.save()
         return HttpResponse("Done")
 
 class TestSectionViewSet(viewsets.ModelViewSet):
-    permission_classes=[IsAuthenticated]
+    permission_classes=[Nobody]
     queryset=TestSection.objects.all()
     serializer_class=TestSectionSerializer
 
@@ -397,7 +398,7 @@ class TestSectionViewSet(viewsets.ModelViewSet):
         queryset=TestSection.objects.filter(paper_id=paper_id) #return those test questions whose 'section' fields have paper_id=paper_id
         return queryset
     
-    @action(detail=False)
+    @action(detail=False,permission_classes=(IsAuthenticated,))
     def get_sections(self,request): #used in TestTable of Dashboard
         paper_id=self.request.query_params.get('paper_id')
         sections=TestSection.objects.filter(paper_id=paper_id).values()
@@ -412,34 +413,30 @@ class TestSectionViewSet(viewsets.ModelViewSet):
 
     @action(detail=False,methods=['POST'],permission_classes=(IsAuthenticated,))
     def update_weightage(self,request):#used in Test
-        id=request.data['id']
-        weightage=request.data['weightage']
-        section=TestSection.objects.get(id=id)
-        section.percent_weightage=weightage
-        section.save()
+        if request.user.current_year>2:
+            id=request.data['id']
+            weightage=request.data['weightage']
+            section=TestSection.objects.get(id=id)
+            section.percent_weightage=weightage
+            section.save()
         return HttpResponse('Done')
 
     @action(detail=False,methods=['POST'],permission_classes=(IsAuthenticated,))
     def create_section(self,request): #used in Test
-        paper_id=request.data['paper_id']
-        percentage_weightage=request.data['percent_weightage']
-        section_name=request.data['section_name']
-        paper=Paper.objects.get(id=paper_id)
-        section=TestSection(section_name=section_name,percent_weightage=percentage_weightage,paper=paper)
-        section.save()
+        if request.user.current_year>2:
+            paper_id=request.data['paper_id']
+            percentage_weightage=request.data['percent_weightage']
+            section_name=request.data['section_name']
+            paper=Paper.objects.get(id=paper_id)
+            section=TestSection(section_name=section_name,percent_weightage=percentage_weightage,paper=paper)
+            section.save()
         return HttpResponse("Done")
 
 class TestQuestionViewSet(viewsets.ModelViewSet):
+    permission_classes=[Nobody]
     queryset=TestQuestion.objects.all()
     serializer_class=TestQuestionSerializer
 
-    def get_permissions(self):
-        if self.request.method=='GET':
-            self.permission_classes=[IsAuthenticated]
-        elif self.request.method=='POST' or self.request.method=='DELETE':
-            self.permission_classes=[IsAuthenticated,isNot2ndYear]
-        
-        return super(TestQuestionViewSet,self).get_permissions()
 
     def get_queryset(self):
         paper_id=self.request.query_params.get('paper_id')
@@ -448,37 +445,39 @@ class TestQuestionViewSet(viewsets.ModelViewSet):
 
     @action(detail=False,methods=['POST'],permission_classes=(IsAuthenticated,))
     def update_question(self,request): #used in Test
-        id=request.data['id']
-        q_text=request.data['q_text']
-        assigned_to=request.data['assigned_to']
-        total_marks=request.data['total_marks']
-        ques=TestQuestion.objects.get(id=id)
-        ques.q_text=q_text
-        ques.assigned_to_id=assigned_to
-        ques.total_marks=total_marks
-        ques.save()
+        if request.user.current_year>2:
+            id=request.data['id']
+            q_text=request.data['q_text']
+            assigned_to=request.data['assigned_to']
+            total_marks=request.data['total_marks']
+            ques=TestQuestion.objects.get(id=id)
+            ques.q_text=q_text
+            ques.assigned_to_id=assigned_to
+            ques.total_marks=total_marks
+            ques.save()
         return HttpResponse("Done")
 
     @action(detail=False,methods=['POST'],permission_classes=(IsAuthenticated,))
     def create_question(self,request): #used in Test
-        section_id=request.data['id']
-        q_id=request.data['q_id']
-        q_text=request.data['q_text']
-        assigned_to=request.data['assigned_to']
-        total_marks=request.data['total_marks']
-        ques=TestQuestion(q_id=q_id,q_text=q_text,assigned_to_id=assigned_to,section_id=section_id,total_marks=total_marks)
-        ques.save()
+        if request.user.current_year>2:
+            section_id=request.data['id']
+            q_id=request.data['q_id']
+            q_text=request.data['q_text']
+            assigned_to=request.data['assigned_to']
+            total_marks=request.data['total_marks']
+            ques=TestQuestion(q_id=q_id,q_text=q_text,assigned_to_id=assigned_to,section_id=section_id,total_marks=total_marks)
+            ques.save()
         return HttpResponse("Done")
     
 
 
 #interview.py model viewsets
 class InterviewRoundsViewSet(viewsets.ModelViewSet):
-    permission_classes=[IsAuthenticated]
+    permission_classes=[Nobody]
     queryset=InterviewRounds.objects.all()
     serializer_class=InterviewRoundsSerializer
 
-    @action(detail=False)
+    @action(detail=False,permission_classes=(IsAuthenticated,))
     def get_interviews(self,request): #used in Dashboard
         season_id=self.request.query_params.get('season')
         interviews=InterviewRounds.objects.filter(season_id=season_id).values()
@@ -486,7 +485,7 @@ class InterviewRoundsViewSet(viewsets.ModelViewSet):
         return res
 
 
-    @action(detail=False)
+    @action(detail=False,permission_classes=(IsAuthenticated,))
     def get_info(self,request): #used in InterviewTable of Dashboard
         id=self.request.query_params.get('int_round_id')
         rows=[]
@@ -516,7 +515,7 @@ class InterviewRoundsViewSet(viewsets.ModelViewSet):
                 info_dict.update({"status":None})
 
 
-            if request.user.current_year!=2:
+            if request.user.current_year>2:
                 try:
                     int_response=InterviewResponse.objects.get(interview_id=interview.id)
                     response=Evaluation.objects.get(pk=int_response.response_id)
@@ -532,11 +531,11 @@ class InterviewRoundsViewSet(viewsets.ModelViewSet):
 
 
 class InterviewViewSet(viewsets.ModelViewSet):
-    permission_classes=[IsAuthenticated]
+    permission_classes=[Nobody]
     queryset=Interview.objects.all()
     serializer_class=InterviewSerializer
 
-    @action(detail=False)
+    @action(detail=False,permission_classes=(IsAuthenticated,))
     def get_info(self,request):
         int_round_id=self.request.query_params.get('int_round_id')
         interviews=Interview.objects.filter(interview_round_id=int_round_id).values()
@@ -565,11 +564,11 @@ class InterviewViewSet(viewsets.ModelViewSet):
 
 
 class InterviewPanelViewSet(viewsets.ModelViewSet):
-    permission_classes=[IsAuthenticated]
+    permission_classes=[Nobody]
     queryset=InterviewPanel.objects.all()
     serializer_class=InterviewPanelSerializer
 
-    @action(detail=False)
+    @action(detail=False,permission_classes=(IsAuthenticated,))
     def get_info(self,request): #used in Interview
         season_id=self.request.query_params.get('season_id')
         rounds=InterviewRounds.objects.filter(season_id=season_id)
@@ -600,7 +599,8 @@ class InterviewPanelViewSet(viewsets.ModelViewSet):
                     info_dict.update({"status":"Done"})
                 else:
                     info_dict.update({"status":""})
-
+                
+                print(interview.id)
                 panel=InterviewPanel.objects.get(interview_id=interview.id)
                 interviewers=panel.interviewer.all()
                 info_dict.update({"id":panel.id})
@@ -698,17 +698,13 @@ class InterviewPanelViewSet(viewsets.ModelViewSet):
         try:
             member1=IMGMember.objects.get(id=int1)
             panel.interviewer.add(member1)
-            # print("Hi1")
         except:
-            # print("Hello1")
             panel.interviewer.add(None)
         try:
             member2=IMGMember.objects.get(id=int2)
             panel.interviewer.add(member2)
-            # print("HI2")
         except:
             panel.interviewer.add(None)
-            # print("hello")
         
         
         
@@ -719,8 +715,7 @@ class InterviewPanelViewSet(viewsets.ModelViewSet):
             interview.status=status[0]
         interview.slot_timing=slot_timing
         
-        interview.save()
-        # print(panel.interviewer.all())  
+        interview.save() 
         return HttpResponse("Done")
 
 
@@ -728,7 +723,7 @@ class InterviewPanelViewSet(viewsets.ModelViewSet):
 
 #response.py model viewsets
 class TestResponseViewSet(viewsets.ModelViewSet):
-    permission_classes=[IsAuthenticated]
+    permission_classes=[Nobody]
     queryset=TestResponse.objects.all()
     serializer_class=TestResponseSerializer
 
@@ -745,36 +740,37 @@ class TestResponseViewSet(viewsets.ModelViewSet):
         remarks=request.data['remarks']
         ques_id=request.data['ques_id']
         candidate_season_id=request.data['candidate_season_id']
-        try:
-            test_response=TestResponse.objects.get(candidate_id=candidate_season_id,question_id=ques_id)
-            eval_resp=Evaluation.objects.get(id=test_response.response_id)
-            eval_resp.marks=marks
-            eval_resp.remarks=remarks
-            eval_resp.save()
-        except TestResponse.DoesNotExist:
-            eval_resp=Evaluation(marks=marks,remarks=remarks)
-            eval_resp.save()
-            candidate=CandidateSeasonData.objects.get(pk=candidate_season_id)
-            ques=TestQuestion.objects.get(pk=ques_id)
-            test_response=TestResponse(response=eval_resp,candidate=candidate,question=ques)
-            test_response.save()
+        if request.user.current_year>2:
+            try:
+                test_response=TestResponse.objects.get(candidate_id=candidate_season_id,question_id=ques_id)
+                eval_resp=Evaluation.objects.get(id=test_response.response_id)
+                eval_resp.marks=marks
+                eval_resp.remarks=remarks
+                eval_resp.save()
+            except TestResponse.DoesNotExist:
+                eval_resp=Evaluation(marks=marks,remarks=remarks)
+                eval_resp.save()
+                candidate=CandidateSeasonData.objects.get(pk=candidate_season_id)
+                ques=TestQuestion.objects.get(pk=ques_id)
+                test_response=TestResponse(response=eval_resp,candidate=candidate,question=ques)
+                test_response.save()
         return HttpResponse("Done")
 
 
 class EvaluationViewSet(viewsets.ModelViewSet):
-    permission_classes=[IsAuthenticated,isNot2ndYear]
+    permission_classes=[Nobody]
     queryset=Evaluation.objects.all()
     serializer_class=EvaluationSerializer
 
 class InterviewResponseViewSet(viewsets.ModelViewSet):
-    permission_classes=[IsAuthenticated,isNot2ndYear]
+    permission_classes=[Nobody]
     queryset=InterviewResponse.objects.all()
     serializer_class=InterviewResponseSerializer
 
     @action(detail=False,methods=['POST'],permission_classes=(IsAuthenticated,))
     def update_marks(self,request):#used in InterviewTable of Dashboard
         timing=request.data['timing']
-        if request.user.current_year!=2:
+        if request.user.current_year>2:
             marks=request.data['marks']
             remarks=request.data['remarks']
         callNotes=request.data['callNotes']
@@ -782,7 +778,7 @@ class InterviewResponseViewSet(viewsets.ModelViewSet):
         status=request.data['status']
         interview_id=request.data['interview_id']
         int_response=InterviewResponse.objects.get(interview_id=interview_id)
-        if request.user.current_year!=2:
+        if request.user.current_year>2:
             try:            
                 eval_resp=Evaluation.objects.get(id=int_response.response_id)
                 eval_resp.marks=marks

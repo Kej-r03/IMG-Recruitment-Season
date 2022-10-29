@@ -30,7 +30,14 @@ export default function Test(){
 
     const {id}=useParams()
 
-
+    const [IMGYear,setIMGYear]=React.useState()
+    useEffect(()=>{
+        axios
+        .get("http://localhost:8000/login/get_year/",{params:{season_id:id}},{withCredentials:true})
+        .then(function(response){
+            setIMGYear(response.data.year)
+        })
+    })
     const [open,setOpen]=React.useState(false)
     const [anchorEl,setAnchorEl]=React.useState(null)
     const openMenu=(event)=>{
@@ -94,7 +101,7 @@ export default function Test(){
                 <Button variant="contained"  onClick={()=>{window.location.href="http://localhost:3000/dashboard/"+id+"/"}} startIcon={<AssignmentIcon />} sx={{position:"relative",left:"70vw", }}>Evaluate</Button>
                 </div>
                 
-                <PaperTab id={id}/>
+                <PaperTab id={id} img_year={IMGYear}/>
                 
             </Box>
 
@@ -106,7 +113,7 @@ export default function Test(){
 
 function PaperTab(props){
 
-    const {id}=props
+    const {id,img_year}=props
 
     //tab state variables
     const[tabValue,setTabValue]=React.useState(1);
@@ -240,7 +247,7 @@ function PaperTab(props){
     const handleNewQuesMarksChange=(event)=>{
         setNewQuesMarks(event.target.value)
     }
-    const createQuestion=()=>{//will write on getting imgmembers from request
+    const createQuestion=()=>{
         const params=JSON.stringify({'id':newQuestionModalValue,'q_id':newQuesId,'q_text':newQuesText,'assigned_to':newQuesSelect,'total_marks':newQuesMarks})
         axios
         .post("http://localhost:8000/testquestion/create_question/",params,{headers:{'Content-Type':'application/json'}},{withCredentials:true})
@@ -284,7 +291,7 @@ function PaperTab(props){
                    
                ))}
           </Tabs>
-          <Button variant="outlined" startIcon={<AddIcon />} sx={{position:"absolute", right:"25%"}} onClick={handlePaperModalOpen}>Add Paper</Button>
+          {img_year>2 && <Button variant="outlined" startIcon={<AddIcon />} sx={{position:"absolute", right:"25%"}} onClick={handlePaperModalOpen}>Add Paper</Button>}
 
           <Modal open={openPaperModal} onClose={handlePaperModalClose}>
               <Box sx={{height:"17vh", width:"15vw", position:"absolute", bgcolor:"background.paper", boxShadow:24, top:"50%",left:"50%",transform: 'translate(-50%, -50%)', p:3}}>
@@ -314,7 +321,7 @@ function PaperTab(props){
 
                 <Box sx={{mb:3}}>
                 Sections
-                <Button variant="outlined" startIcon={<AddIcon />} sx={{position:"absolute", right:"22%"}} onClick={handleSectionModalOpen}>Add Sections</Button>
+                {img_year>2 && <Button variant="outlined" startIcon={<AddIcon />} sx={{position:"absolute", right:"22%"}} onClick={handleSectionModalOpen}>Add Sections</Button>}
                 </Box>
 
                 <Modal open={openSectionModal} onClose={handleSectionModalClose}>
@@ -335,7 +342,9 @@ function PaperTab(props){
                     <Accordion sx={{mt:3, width:"60vw"}}>
                     <AccordionSummary expandIcon={<ExpandMoreIcon />} sx={{height:"7vh"}}>
                         {section.section_name}
-                        <Chip label={"Weightage: "+section.percent_weightage} sx={{position:"absolute", right: 250}} onClick={()=>{handleWeightageModalOpen(section.id)}} />
+                        {img_year>2?
+                        <Chip label={"Weightage: "+section.percent_weightage} sx={{position:"absolute", right: 250}} onClick={()=>{handleWeightageModalOpen(section.id)}} />:
+                        <Chip label={"Weightage: "+section.percent_weightage} sx={{position:"absolute", right: 250}} />}
                         
                         <Modal open={openWeightageModal && weightageModalValue==section.id} onClose={handleWeightageModalClose}>
                             <Box sx={{height:"10vh", width:"10vw", position:"absolute", bgcolor:"background.paper", boxShadow:24, top:"50%",left:"50%",transform: 'translate(-50%, -50%)', p:3}}>
@@ -348,9 +357,9 @@ function PaperTab(props){
 
 
 
-                        <Button variant="outlined" sx={{width:'10vw', position:"absolute",bottom:10, right:50}} startIcon={<AddIcon />} onClick={()=>{handleNewQuestionModalOpen(section.id)}}>
+                       {img_year>2 && <Button variant="outlined" sx={{width:'10vw', position:"absolute",bottom:10, right:50}} startIcon={<AddIcon />} onClick={()=>{handleNewQuestionModalOpen(section.id)}}>
                             Add Question
-                        </Button>
+                        </Button>}
                         
                          <Modal
                             open={openNewQuestionModal && newQuestionModalValue==section.id}
@@ -413,9 +422,13 @@ function PaperTab(props){
                             {section.ques_list.map((ques)=>(
                                 <>
                             <ListItem>
+                            {img_year>2?
                             <ListItemButton onClick={()=>{handleModalOpen(ques.id,ques.q_text,ques.assigned_to_id,ques.total_marks)}}>
                                 Q_ID{ques.q_id}
-                            </ListItemButton>
+                            </ListItemButton>:
+                            <ListItemButton>
+                                Q_ID{ques.q_id}
+                            </ListItemButton>}
                             <Chip label={"Assigned To: "+ques.assigned_to_name} sx={{position:"absolute", right: "20vw"}} />
                             <Chip label={"Marks: "+ques.total_marks} sx={{position:"absolute", right: "2vw"}} />
                             </ListItem>                       

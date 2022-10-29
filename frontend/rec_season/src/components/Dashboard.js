@@ -1,4 +1,4 @@
-import { ThemeProvider,IconButton,Menu,MenuItem,Modal, TextField,Button,Typography,Link,Breadcrumbs,createTheme,AppBar, Paper,Table, TablePagination,TableFooter, Toolbar,Box,Tabs,Tab,Divider, TableContainer, TableHead, TableRow, TableCell, TableBody, TableSortLabel, Checkbox, FormLabel, Radio,RadioGroup, FormControlLabel ,FormControl} from "@mui/material";
+import { ThemeProvider,IconButton,Menu,MenuItem,Modal, TextField,Button,Typography,Link,Breadcrumbs,createTheme,AppBar, Paper,Table, TablePagination,TableFooter, Toolbar,Box,Tabs,Tab,Divider, TableContainer, TableHead, TableRow, TableCell, TableBody, TableSortLabel, Checkbox, FormLabel, Radio,RadioGroup, FormControlLabel ,FormControl, Select} from "@mui/material";
 import React, { useEffect } from "react";
 import SearchOutlinedIcon from '@mui/icons-material/SearchOutlined';
 import AccountCircleIcon from '@mui/icons-material/AccountCircle';
@@ -85,10 +85,16 @@ function RoundTab(props){
         setValue(newValue);
     }
 
+
+    const [IMGYear,setIMGYear]=React.useState()
     const [int_rounds,setInt_Rounds]=React.useState([])
     const [test_papers,setTest_Papers]=React.useState([])
     useEffect(()=>{
-        
+        axios
+        .get("http://localhost:8000/login/get_year/",{params:{season_id:season_id}},{withCredentials:true})
+        .then(function(response){
+            setIMGYear(response.data.year)
+        })
         axios
         .get("http://localhost:8000/paper/get_papers/",{params:{season:season_id}},{withCredentials:true})
         .then(function(response){
@@ -102,6 +108,22 @@ function RoundTab(props){
         })        
     },[])
 
+
+
+    const [open,setOpen]=React.useState(false)
+    const [round_no,setRound_no]=React.useState()
+    const [type,setType]=React.useState()
+    const handleModalOpen=()=>setOpen(true)
+    const handleModalClose=()=>{setOpen(false);setRound_no();setType();}
+    const handleRoundChange=(event)=>setRound_no(event.target.value)
+    const handleTypeChange=(event)=>setType(event.target.value)
+    const createInterview=()=>{
+        const params=JSON.stringify({"round_no":round_no,"interview_type":type.charAt(0),"season":season_id})
+        axios
+        .post("http://localhost:8000/int_rounds/",params,{headers:{'Content-Type':'application/json'}},{withCredentials:true})
+        handleModalClose()
+        window.location.href=window.location.href
+    }
     return(
         <>
         <Toolbar sx={{mb:5}}>
@@ -121,20 +143,36 @@ function RoundTab(props){
 
                {int_rounds.map((round,index) => (
                    
-                   <Tab label={`Interview Round ${index+1}`} sx={{fontSize:17}} />
+                   <Tab label={`Interview Round ${round.round_no} (${round.interview_type})`} sx={{fontSize:17}} />
                    
                ))}
 
                <Tab label={`Selected`} sx={{fontSize:17}} />
           </Tabs>
+
+          <Button variant="contained" startIcon={<AddIcon />} sx={{position:'absolute', right:'1vw', bottom:'13vh'}} onClick={handleModalOpen}>Add Interview Round</Button>
+          <Button variant="contained" startIcon={<AddIcon />} sx={{position:'absolute', right:'1vw', bottom:'9vh'}} onClick={()=>{window.location.href="http://localhost:3000/test/"+season_id+"/"}}>Add Paper</Button>
           
+          <Modal open={open} onClose={handleModalClose}>
+          <Box sx={{height:"17vh", width:"15vw", position:"absolute", bgcolor:"background.paper", boxShadow:24, top:"50%",left:"50%",transform: 'translate(-50%, -50%)', p:3}}>
+                    <Typography>Interview Round Number</Typography>
+                    <input type="number" onChange={handleRoundChange} />
+                    <Typography>Interview Type</Typography>
+                    <Select value={type} onChange={handleTypeChange}>
+                        <MenuItem value="Technical">Technical</MenuItem>
+                        <MenuItem value="HR">HR</MenuItem>
+                    </Select>
+
+                    <Button variant="contained" onClick={createInterview} sx={{position:'absolute',right:'2vw',bottom:'2vh'}}>Add Round</Button>
+            </Box>
+          </Modal>
         </Toolbar>
         
         <Divider />
         
-        {value<test_papers.length &&<TestTable value={value} test_papers={test_papers} int_rounds={int_rounds}/>}
-        {value==test_papers.length && <Project int_rounds={int_rounds} season_id={season_id} />}
-        {value>=test_papers.length+1  && value<int_rounds.length+1+test_papers.length && <InterviewTable int_rounds={int_rounds} index={value-1-test_papers.length}/>}
+        {value<test_papers.length &&<TestTable value={value} test_papers={test_papers} int_rounds={int_rounds} img_year={IMGYear}/>}
+        {value==test_papers.length && <Project int_rounds={int_rounds} season_id={season_id} img_year={IMGYear}/>}
+        {value>=test_papers.length+1  && value<int_rounds.length+1+test_papers.length && <InterviewTable int_rounds={int_rounds} index={value-1-test_papers.length} img_year={IMGYear}/>}
         {value>=test_papers.length+1+int_rounds.length && <Selected  int_rounds={int_rounds} season_id={season_id}/>}
         </>
     )

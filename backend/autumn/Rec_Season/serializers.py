@@ -69,7 +69,7 @@ class InterviewSerializer(serializers.ModelSerializer):
 
 class InterviewPanelSerializer(serializers.ModelSerializer):
     # interview=InterviewSerializer(read_only=True)
-    # interviewer=IMGMemberSerializer(read_only=True)
+    interviewer=IMGMemberSerializer(read_only=True)
     class Meta:
         model=InterviewPanel
         fields='__all__'

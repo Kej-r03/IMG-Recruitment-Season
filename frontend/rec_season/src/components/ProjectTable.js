@@ -8,10 +8,12 @@ import FilterListIcon from '@mui/icons-material/FilterList';
 axios.defaults.withCredentials = true;
 axios.defaults.xsrfHeaderName = 'X-CSRFTOKEN';
 axios.defaults.xsrfCookieName = 'csrftoken'
-const headCells=[{id:'slno',value:"Sl No"},{id:'name',value:'Name'},{id:'enrolment',value:'Enrolment No'},{id:'project_name',value:'Project Name'},{id:'marks',value:'Marks'},{id:'remarks',value:'Remarks'}]
+
+
+
 export default function Project(props)
 {
-    const {int_rounds,season_id}=props
+    const {int_rounds,season_id,img_year}=props
     const [rows,setRows]=React.useState([])
     useEffect(()=>{
         axios
@@ -23,6 +25,12 @@ export default function Project(props)
     },[])
 
     
+    if(img_year>2)
+    var headCells=[{id:'slno',value:"Sl No"},{id:'name',value:'Name'},{id:'enrolment',value:'Enrolment No'},{id:'project_name',value:'Project Name'},{id:'marks',value:'Marks'},{id:'remarks',value:'Remarks'}]
+    else
+    var headCells=[{id:'slno',value:"Sl No"},{id:'name',value:'Name'},{id:'enrolment',value:'Enrolment No'},{id:'project_name',value:'Project Name'}]
+
+
 
     //filter
     const [open, setOpen] = React.useState(false);
@@ -50,17 +58,21 @@ export default function Project(props)
     }
     return(
         <>
-        <Button variant="contained" sx={{position:"absolute", right:'5vw',top:'28vh',width:'10vw'}} startIcon={<FilterListIcon />} onClick={openFilter}>Filter</Button>
+        {img_year>2 && <Button variant="contained" sx={{position:"absolute", right:'5vw',top:'28vh',width:'10vw'}} startIcon={<FilterListIcon />} onClick={openFilter}>Filter</Button>}
 
             <Modal open={open} onClose={closeFilter}>
             <Box sx={{height:"15vh", width:"10vw", position:"absolute", bgcolor:"background.paper", boxShadow:24, top:"30%",right:"5.5vw", p:3}}>
 
                 <Typography sx={{fontWeight:'bold'}}>Filters</Typography>
 
+                {img_year>2 && 
+                <>
                 <FormLabel>Marks</FormLabel><br />
                     <FormControl>
                         Greater than <input type="number" style={{width:'2vw'}} defaultValue={filterMarks} onChange={(event)=>{changeMarksFilter(event)}}  />
                     </FormControl>
+                </>
+                }
 
                 <Button variant="contained" onClick={applyFilter} sx={{position:"absolute", right:'7vw', bottom:'2vh'}}>Apply</Button>
                 <Button variant="contained" onClick={resetFilter} sx={{position:"absolute", right:'2vw', bottom:'2vh'}}>Reset</Button>
@@ -79,7 +91,7 @@ export default function Project(props)
                             ))}
                         </TableRow>
                 </TableHead>
-                <ProjectTableBody rows={filteredRows} int_rounds={int_rounds}/>
+                <ProjectTableBody rows={filteredRows} int_rounds={int_rounds} img_year={img_year}/>
             </Table>
         </TableContainer>
         </>
@@ -88,7 +100,7 @@ export default function Project(props)
 
 
 function ProjectTableBody(props){
-    const {rows,int_rounds}=props
+    const {rows,int_rounds,img_year}=props
 
     const [page,setPage]=React.useState(0);
     const[rowsPerPage,setRowsPerPage]=React.useState(5);
@@ -194,8 +206,12 @@ function ProjectTableBody(props){
                     <TableCell>{row.name}</TableCell>
                     <TableCell>{row.enrolment}</TableCell>
                     <TableCell onClick={()=>{handleOpenModal(row.id);setProjectID(row.project_name_id);setMarks(row.marks);setRemarks(row.remarks);setProjectName(row.project_name);setDetails(row.project_details)}}>{row.project_name}</TableCell>
+                    {img_year>2 &&
+                    <>
                     <TableCell onClick={()=>{handleOpenModal(row.id);setProjectID(row.project_name_id);setMarks(row.marks);setRemarks(row.remarks);setProjectName(row.project_name);setDetails(row.project_details)}}>{row.marks}</TableCell>
                     <TableCell onClick={()=>{handleOpenModal(row.id);setProjectID(row.project_name_id);setMarks(row.marks);setRemarks(row.remarks);setProjectName(row.project_name);setDetails(row.project_details)}}>{row.remarks}</TableCell>
+                    </>
+                    }
                 </TableRow>
 
 
@@ -209,6 +225,7 @@ function ProjectTableBody(props){
                     <TextField type='text' value={row.project_details} variant='outlined' inputProps={{ readOnly: true, }}/>
                     </FormControl>
                     
+                    {img_year>2 && <>
                     <FormControl sx={{mb:3}}>
                     <Typography>Enter Marks</Typography>
                     <input type="number" defaultValue={row.marks} onChange={handleMarksChange}/>
@@ -220,6 +237,8 @@ function ProjectTableBody(props){
                     </FormControl>
 
                     <Button variant="contained" sx={{position:"absolute", right:"2vw", bottom:'2vh'}} onClick={changeMarksRemarks}>Submit</Button>
+                    </>
+                    }
                     </Box>
                 </Modal>
 

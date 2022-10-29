@@ -1,4 +1,4 @@
-import { ThemeProvider,Box,AppBar, Toolbar,Typography,Select,createTheme, Grid,Menu,MenuItem,Drawer,List,ListItemButton,Divider,ListItemText,Button, Card,CardContent, Modal} from "@mui/material";
+import { ThemeProvider,Box,AppBar, Toolbar,Typography,Select,createTheme,FormControl, Grid,Menu,MenuItem,Drawer,List,ListItemButton,Divider,ListItemText,Button, Card,CardContent, Modal} from "@mui/material";
 import { IconButton } from "@mui/material";
 import AccountCircleIcon from '@mui/icons-material/AccountCircle';
 import React, { useEffect } from "react";
@@ -142,12 +142,17 @@ function InterviewsDisplay(props){
     const {id}=props
 
     const [interviews,setInterviews]=React.useState()
+    const [imgmembers,setImgmembers]=React.useState()
     useEffect(()=>{
         axios
         .get("http://localhost:8000/interview_panel/get_info/",{params:{season_id:id}},{withCredentials:true})
         .then(function(response){
-            console.log(response.data)
             setInterviews(response.data)
+        })
+        axios
+        .get("http://localhost:8000/img_member/",{withCredentials:true})
+        .then(function(response){
+            setImgmembers(response.data)
         })
     },[])
 
@@ -161,24 +166,34 @@ function InterviewsDisplay(props){
     const [panelStatus,setPanelStatus]=React.useState()
     const [intStatus,setIntStatus]=React.useState()
     const [interviewPanelID,setInterviewPanelID]=React.useState()
+    const [interviewer1,setInterviewer1]=React.useState()
+    const [interviewer2,setInterviewer2]=React.useState()
     const handleEditInterviewModal=(index)=>{
         setOpenEditInterview(true);
         setInterviewPanelID(interviews[index].id);
         setPanelStatus(interviews[index].active=='F'?"Free":interviews[index].active=='B'?"Busy":interviews[index].active=="I"?"Inactive":"");
         setLocation(interviews[index].location);
         setTiming(interviews[index].slot_timing);
-        setIntStatus(interviews[index].status)}
-    const handleEditInterviewClose=()=>{setOpenEditInterview(false);setTiming();setLocation();setPanelStatus();setIntStatus();setInterviewPanelID()}
+        setIntStatus(interviews[index].status);
+        setInterviewer1(interviews[index].interviewer1);
+        setInterviewer2(interviews[index].interviewer2)}
+    const handleEditInterviewClose=()=>{setOpenEditInterview(false);setTiming();setLocation();setPanelStatus();setIntStatus();setInterviewPanelID();setInterviewer1();setInterviewer2()}
     const handleTimingEdit=(event)=>{setTiming(event.target.value)}
     const handleLocationEdit=(event)=>{setLocation(event.target.value)}
     const handlePanelStatus=(event)=>{setPanelStatus(event.target.value)}
     const handleIntStatus=(event)=>{setIntStatus(event.target.value)}
+    const handleInterviewer1Change=(event)=>{setInterviewer1(event.target.value)}
+    const handleInterviewer2Change=(event)=>{setInterviewer2(event.target.value)}
     const editInterview=()=>{
-        const params=JSON.stringify({"timing":timing,"location":location,"panelStatus":panelStatus,"id":interviewPanelID,"intStatus":intStatus})
+        const params=JSON.stringify({"timing":timing,"location":location,"panelStatus":panelStatus,"id":interviewPanelID,"intStatus":intStatus,"int1":interviewer1,"int2":interviewer2})
+        console.log(interviewer1)
+        console.log(interviewer2)
         axios
         .post("http://localhost:8000/interview_panel/update_interview/",params,{headers:{'Content-Type':'application/json'}},{withCredentials:true})
-        handleEditInterviewClose()
-        window.location.href=window.location.href
+        .then(function(response){
+            handleEditInterviewClose()
+            window.location.href=window.location.href
+        })
     }
     return (
         <>
@@ -186,7 +201,7 @@ function InterviewsDisplay(props){
         {interviews!=null && interviews.map((interview,index)=>(
             <>
             <Grid item md={4}>
-            <Card variant="outlined" sx={{cursor:'pointer', height:'75vh'}} onClick={()=>handleEditInterviewModal(index)}>
+            <Card variant="outlined" sx={{cursor:'pointer', height:'80vh'}} onClick={()=>handleEditInterviewModal(index)}>
                 <CardContent>
                     <Typography variant="h4">Interview Details</Typography>
                     <Divider />
@@ -202,9 +217,11 @@ function InterviewsDisplay(props){
                     <Typography variant="h5" sx={{fontWeight:'bold'}}>Location:</Typography>
                     <Typography variant="h6">{interview.location}</Typography><br />
                     <Typography variant="h5" sx={{fontWeight:'bold'}}>Interviewers:</Typography>
-                    {interview.interviewers.map((interviewer)=>(
+                    {/* {interview.interviewers.map((interviewer)=>(
                         <Typography variant="h6">{interviewer.name}</Typography>
-                    ))}
+                    ))} */}
+                    <Typography variant="h6">{interview.interviewer1name}</Typography><br />
+                    <Typography variant="h6">{interview.interviewer2name}</Typography><br />
                     <br />
                     <Typography variant="h5" sx={{fontWeight:'bold'}}>Panel Status:</Typography>
                     <Typography variant="h6">{interview.active=='F'?"Free":interview.active=='B'?"Busy":interview.active=="I"?"Inactive":""}</Typography><br />
@@ -216,7 +233,7 @@ function InterviewsDisplay(props){
 
 
             <Modal open={openEditInterview} onClose={handleEditInterviewClose}>
-            <Box sx={{height:"30vh", width:"15vw", position:"absolute", bgcolor:"background.paper", boxShadow:24, top:"50%",left:"50%",transform: 'translate(-50%, -50%)', p:3}}>
+            <Box sx={{height:"40vh", width:"25vw", position:"absolute", bgcolor:"background.paper", boxShadow:24, top:"50%",left:"50%",transform: 'translate(-50%, -50%)', p:3}}>
 
                 <Typography sx={{fontWeight:'bold',fontSize:20}}>Edit Interview Details</Typography>
                     
@@ -225,6 +242,26 @@ function InterviewsDisplay(props){
 
                     <Typography>Location</Typography>
                     <input type="text" onChange={handleLocationEdit} defaultValue={location}/>
+
+                    <Typography>Select Interviewers</Typography>
+                    <FormControl >
+                    <Box>
+                    <Select value={interviewer1} style={{height:'3vh',width:'15vw'}} onChange={handleInterviewer1Change}>
+                        {imgmembers && imgmembers.map((member)=>(
+                            <MenuItem value={member.id}>{member.name}</MenuItem>
+                        ))}
+                    </Select>
+                    </Box>
+                    </FormControl><br />
+                    <FormControl >
+                    <Box sx={{mt:2}}>
+                    <Select value={interviewer2} style={{height:'3vh',width:'15vw'}} onChange={handleInterviewer2Change}>
+                        {imgmembers && imgmembers.map((member)=>(
+                            <MenuItem value={member.id}>{member.name}</MenuItem>
+                        ))}
+                    </Select>
+                    </Box>
+                    </FormControl>
                     
                     <Typography>Panel Status</Typography>
                     <Select value={panelStatus} onChange={handlePanelStatus}>

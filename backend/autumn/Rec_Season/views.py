@@ -16,6 +16,7 @@ import json
 from .models import *
 import pandas as pd
 from django.db.models import Count
+from datetime import date
 # Create your views here.
 
 #season.py model viewsets
@@ -137,9 +138,10 @@ class CandidateSeasonDataViewSet(viewsets.ModelViewSet):
                         flag=1
                 total={"section_id":section['id'],"total":sum}
                 section_total_list.append(total)
-                    
-            candidate.update({"mark_list":mark_list})
-            candidate.update({"section_total_list":section_total_list})
+        
+            if(request.user.current_year!=2):
+                candidate.update({"mark_list":mark_list})
+                candidate.update({"section_total_list":section_total_list})
             if flag==0:
                 candidate.update({"eval_status":"Evaluated"})
             else:
@@ -185,8 +187,9 @@ class CandidateSeasonDataViewSet(viewsets.ModelViewSet):
             project_info=Project.objects.get(pk=project['project_name_id'])
             project.update({"project_name":project_info.project_name})
             project.update({"project_details":project_info.details})
-            project.update({"marks":project_info.marks})
-            project.update({"remarks":project_info.remarks})
+            if request.user.current_year!=2:
+                project.update({"marks":project_info.marks})
+                project.update({"remarks":project_info.remarks})
             candidate_info=Candidate.objects.get(pk=project['candidate_id'])
             project.update({"name":candidate_info.name})
             project.update({'enrolment':candidate_info.enrolment})
@@ -337,11 +340,21 @@ class IMGMemberLoginViewSet(viewsets.ModelViewSet):
     @action(detail=False)
     def info(self,request): #used in PrivateRouter
         if(request.user.is_authenticated):
-            data=True            
+            data=True
         else:
             data=False
         res=Response({'isLoggedIn':data},status = status.HTTP_200_OK)
         return res
+
+    @action(detail=False)
+    def get_year(self,request): #used in dashboard,Test
+        season_id=self.request.query_params.get('season_id')
+        season=Season.objects.get(id=season_id)
+        d=date.today()
+        year=season.season_year-(d.year-request.user.current_year)
+        res=Response({'year':year},status = status.HTTP_200_OK)
+        return res
+
 
 
     
@@ -502,14 +515,16 @@ class InterviewRoundsViewSet(viewsets.ModelViewSet):
             else:
                 info_dict.update({"status":None})
 
-            try:
-                int_response=InterviewResponse.objects.get(interview_id=interview.id)
-                response=Evaluation.objects.get(pk=int_response.response_id)
-                info_dict.update({"marks":response.marks})
-                info_dict.update({"remarks":response.remarks})
-            except ObjectDoesNotExist:
-                info_dict.update({"marks":''})
-                info_dict.update({'remarks':''})
+
+            if request.user.current_year!=2:
+                try:
+                    int_response=InterviewResponse.objects.get(interview_id=interview.id)
+                    response=Evaluation.objects.get(pk=int_response.response_id)
+                    info_dict.update({"marks":response.marks})
+                    info_dict.update({"remarks":response.remarks})
+                except ObjectDoesNotExist:
+                    info_dict.update({"marks":''})
+                    info_dict.update({'remarks':''})
             rows.append(info_dict)
         
         res=Response(rows)
@@ -587,7 +602,20 @@ class InterviewPanelViewSet(viewsets.ModelViewSet):
                     info_dict.update({"status":""})
 
                 panel=InterviewPanel.objects.get(interview_id=interview.id)
+                interviewers=panel.interviewer.all()
                 info_dict.update({"id":panel.id})
+                try:
+                    info_dict.update({"interviewer1":interviewers[0].id})
+                    info_dict.update({"interviewer1name":interviewers[0].name})
+                except:
+                    info_dict.update({"interviewer1":""})
+                    info_dict.update({"interviewer1name":""})
+                try:
+                    info_dict.update({"interviewer2":interviewers[1].id})
+                    info_dict.update({"interviewer2name":interviewers[1].name})
+                except:
+                    info_dict.update({"interviewer2":""})
+                    info_dict.update({"interviewer2name":""})
                 try:
                     info_dict.update({"active":panel.active})
                 except:
@@ -657,20 +685,42 @@ class InterviewPanelViewSet(viewsets.ModelViewSet):
         active=request.data['panelStatus']
         id=request.data['id']
         status=request.data['intStatus']
+        int1=request.data['int1']
+        int2=request.data['int2']
         panel=InterviewPanel.objects.get(pk=id)
+        panel.interviewer.clear()
         if active==None or active=="":
             panel.active=None
         else:
             panel.active=active[0]
         panel.location=location
+        panel.save()
+        try:
+            member1=IMGMember.objects.get(id=int1)
+            panel.interviewer.add(member1)
+            # print("Hi1")
+        except:
+            # print("Hello1")
+            panel.interviewer.add(None)
+        try:
+            member2=IMGMember.objects.get(id=int2)
+            panel.interviewer.add(member2)
+            # print("HI2")
+        except:
+            panel.interviewer.add(None)
+            # print("hello")
+        
+        
+        
         interview=Interview.objects.get(pk=panel.interview_id)
         if status==None or status=="":
             interview.status=None
         else:
             interview.status=status[0]
         interview.slot_timing=slot_timing
-        panel.save()
+        
         interview.save()
+        # print(panel.interviewer.all())  
         return HttpResponse("Done")
 
 
@@ -724,21 +774,23 @@ class InterviewResponseViewSet(viewsets.ModelViewSet):
     @action(detail=False,methods=['POST'],permission_classes=(IsAuthenticated,))
     def update_marks(self,request):#used in InterviewTable of Dashboard
         timing=request.data['timing']
-        marks=request.data['marks']
-        remarks=request.data['remarks']
+        if request.user.current_year!=2:
+            marks=request.data['marks']
+            remarks=request.data['remarks']
         callNotes=request.data['callNotes']
         print(callNotes)
         status=request.data['status']
         interview_id=request.data['interview_id']
         int_response=InterviewResponse.objects.get(interview_id=interview_id)
-        try:            
-            eval_resp=Evaluation.objects.get(id=int_response.response_id)
-            eval_resp.marks=marks
-            eval_resp.remarks=remarks
-            eval_resp.save()
-        except ObjectDoesNotExist:
-            eval_resp=Evaluation(marks=marks,remarks=remarks)
-            eval_resp.save()
+        if request.user.current_year!=2:
+            try:            
+                eval_resp=Evaluation.objects.get(id=int_response.response_id)
+                eval_resp.marks=marks
+                eval_resp.remarks=remarks
+                eval_resp.save()
+            except ObjectDoesNotExist:
+                eval_resp=Evaluation(marks=marks,remarks=remarks)
+                eval_resp.save()
         
         int=Interview.objects.get(id=interview_id)
         if status!=None:

@@ -13,30 +13,30 @@ axios.defaults.xsrfCookieName = 'csrftoken'
 
 export default function TestTable(props){
 
-    const {value,test_papers,int_rounds}=props    
+    const {value,test_papers,int_rounds,img_year}=props    
 
    
 
 
     const [testSections,setTestSections]=React.useState([])
     const [rows,setRows]=React.useState([])
+    
     useEffect(()=>{
             axios
             .get("http://localhost:8000/testsection/get_sections/",{params:{paper_id:test_papers[value].id}},{withCredentials:true})
             .then(function(response){
-                console.log(response.data)
                 setTestSections(response.data)
             })
             axios
             .get("http://localhost:8000/candidate_season_data/get_marks/",{params:{paper_id:test_papers[value].id}},{withCredentials:true})
             .then(function(response){
-                console.log(response.data)
                 setRows(response.data)
                 setFilteredRows(response.data)
             })
             reset()
         
-    },[value])   
+    },[value]) 
+    
 
     
 
@@ -189,6 +189,8 @@ export default function TestTable(props){
                 </FormControl>
                 </div>
 
+                {img_year>2 &&
+                <>
                 <FormLabel>Sections</FormLabel><br />
                 {testSections.map((section)=>(
                     <div>
@@ -199,6 +201,8 @@ export default function TestTable(props){
                 </FormControl>
                 </div>
                 ))}
+                </>
+                }
 
                 <Button variant="contained" onClick={applyFilter}>Apply</Button>
                 <Button variant="contained" onClick={reset}>Reset</Button>
@@ -234,7 +238,7 @@ export default function TestTable(props){
                     </TableCell>
                 ))}
 
-                {testSections.map((section)=>(
+                {img_year>2 && testSections.map((section)=>(
                     <TableCell colSpan={section.ques_list.length+1} align="center">
                     <Typography sx={{fontWeight:'bold', fontSize:20}}>
                        {section.section_name}
@@ -244,7 +248,7 @@ export default function TestTable(props){
             </TableRow>
 
 
-            <TableRow>
+            {img_year>2 && <TableRow>
                 {testSections.map((section)=>(
                     <>
                     {section.ques_list.map((question)=>(
@@ -262,7 +266,8 @@ export default function TestTable(props){
                     </>
                 ))}
 
-            </TableRow>            
+            </TableRow>  
+            }          
         </TableHead>
 
 
@@ -270,7 +275,7 @@ export default function TestTable(props){
 
 
 
-        <EnhancedTableBody orderedRows={orderedRows} value={value} testSections={testSections} int_rounds={int_rounds}/>
+        <EnhancedTableBody orderedRows={orderedRows} value={value} testSections={testSections} int_rounds={int_rounds} img_year={img_year}/>
         </Table>
         </TableContainer>
         </>
@@ -282,7 +287,7 @@ export default function TestTable(props){
 
 
 function EnhancedTableBody(props){
-    const {orderedRows,value,testSections,int_rounds}=props;        
+    const {orderedRows,value,testSections,int_rounds,img_year}=props;        
     
     const [page,setPage]=React.useState(0);
     const[rowsPerPage,setRowsPerPage]=React.useState(5);
@@ -403,7 +408,7 @@ function EnhancedTableBody(props){
             <TableCell>{row.name}</TableCell>
             <TableCell>{row.enrolment}</TableCell>
             <TableCell>{row.eval_status}</TableCell>          
-            {testSections.map((section)=>(
+            {img_year>2 && testSections.map((section)=>(
                 <>
                 {section.ques_list.map((ques)=>(
                     <TableCell align="center" onClick={()=>{handleOpenModal(ques.q_id,row.id)}} sx={{cursor:'pointer'}}>

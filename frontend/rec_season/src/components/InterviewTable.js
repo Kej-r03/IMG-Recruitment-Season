@@ -9,22 +9,27 @@ import FilterListIcon from '@mui/icons-material/FilterList';
 axios.defaults.withCredentials = true;
 axios.defaults.xsrfHeaderName = 'X-CSRFTOKEN';
 axios.defaults.xsrfCookieName = 'csrftoken'
-const headers=[{value:'Sl No'},{value:"Name"},{value:'Phone'},{value:'Status'},{value:'Call Notes'},{value:'Slot Timings'},{value:'Marks'},{value:'Remarks'}]
+
 export default function InterviewTable(props)
 {
-    const {int_rounds,index}=props
+    const {int_rounds,index,img_year}=props
     const [rows,setRows]=React.useState([])
     useEffect(()=>{
         axios
         .get("http://localhost:8000/int_rounds/get_info/",{params:{int_round_id:int_rounds[index].id}})
         .then(function(response){
-            console.log(response.data)
             setRows(response.data)
             setFilteredRows(response.data)
         })
         setRadioValue('All')
         setFilterMarks()
     },[index])
+
+
+    if(img_year>2)
+    var headers=[{value:'Sl No'},{value:"Name"},{value:'Phone'},{value:'Status'},{value:'Call Notes'},{value:'Slot Timings'},{value:'Marks'},{value:'Remarks'}]
+    else
+    var headers=[{value:'Sl No'},{value:"Name"},{value:'Phone'},{value:'Status'},{value:'Call Notes'},{value:'Slot Timings'}]
 
 
 
@@ -97,16 +102,15 @@ export default function InterviewTable(props)
                     </RadioGroup>
                 </FormControl>
                 <br /> <br />
+                {img_year>2 &&
                 <FormControl>
                     <FormLabel>Marks</FormLabel>
                     <div style={{display:'inline-block'}}>
                         Greater than <input type="number" defaultValue={filterMarks} style={{width:'2vw'}} onChange={changeMarksFilter}  />
                     </div>
                 </FormControl>
+                }
                 <br /> <br />
-                {/* <FormControl>
-                    <FormLabel>Slot Timings</FormLabel>
-                </FormControl> */}
                 <br />
                 <Button onClick={applyFilter} variant="contained" sx={{position:"absolute", right:'8vw'}}>Apply</Button>
                 <Button onClick={resetFilter} variant="contained" sx={{position:"absolute", right:'3vw'}}>Reset</Button>
@@ -132,7 +136,7 @@ export default function InterviewTable(props)
             </TableRow>
         </TableHead>
 
-        <InterviewTableBody rows={filteredRows} this_round_id={int_rounds[index].id} int_rounds={int_rounds}/>
+        <InterviewTableBody rows={filteredRows} this_round_id={int_rounds[index].id} int_rounds={int_rounds} img_year={img_year}/>
         </Table>
         </TableContainer>
         </>
@@ -144,7 +148,7 @@ export default function InterviewTable(props)
 
 function InterviewTableBody(props){
 
-    const {rows, this_round_id, int_rounds}=props
+    const {rows, this_round_id, int_rounds,img_year}=props
 
     const [page,setPage]=React.useState(0);
     const[rowsPerPage,setRowsPerPage]=React.useState(5);
@@ -279,8 +283,12 @@ function InterviewTableBody(props){
             <TableCell onClick={()=>{handleOpenModal(row.id,row.status,row.call_notes,row.marks,row.remarks,row.slot_timing)}} >{row.status}</TableCell>
             <TableCell onClick={()=>{handleOpenModal(row.id,row.status,row.call_notes,row.marks,row.remarks,row.slot_timing)}} >{row.call_notes}</TableCell>
             <TableCell onClick={()=>{handleOpenModal(row.id,row.status,row.call_notes,row.marks,row.remarks,row.slot_timing)}} >{row.slot_timing && row.slot_timing.substring(0,10)+" / "+row.slot_timing.substring(11,19)}</TableCell>
+            {img_year>2 &&
+            <>
             <TableCell onClick={()=>{handleOpenModal(row.id,row.status,row.call_notes,row.marks,row.remarks,row.slot_timing)}} >{row.marks}</TableCell>
             <TableCell onClick={()=>{handleOpenModal(row.id,row.status,row.call_notes,row.marks,row.remarks,row.slot_timing)}} >{row.remarks}</TableCell>          
+            </>
+            }
             </TableRow>
             )})}
         </TableBody>
@@ -333,6 +341,9 @@ function InterviewTableBody(props){
                     <Typography>Update Slot Timing</Typography>
                     <input type="datetime-local" onChange={handleTimingChange} />
                 </FormControl>
+
+                {img_year>2 &&
+                <>
                 <FormControl sx={{mb:3}}>
                     <Typography>Enter Marks</Typography>
                     <input type="number" defaultValue={marks} onChange={handleMarksChange}/>
@@ -341,6 +352,8 @@ function InterviewTableBody(props){
                     <Typography>Enter Remarks</Typography>
                     <TextField defaultValue={remarks} onChange={handleRemarksChange} />
                 </FormControl>
+                </>
+                }
 
                 <Button variant="contained" sx={{position:"absolute", right:"2vw", bottom:'2vh'}} onClick={()=>{changeMarksRemarks(marks,remarks)}}>Submit</Button>
             </Box>

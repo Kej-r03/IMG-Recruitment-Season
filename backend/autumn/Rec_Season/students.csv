@@ -1,5 +1,5 @@
 name,enrolment,email,phone,current_year,project_name,details,test,season_year,role,status,branch
-Abhishek,29087584,abhi@gmail.com,9768564084,2,,,True,2021,1yDev,HR,Civil
-Asha,20987654,asha@gmail.com,9090878765,1,API,Used DRF,True,2021,1yDev,Interview Round 1,Mechanical
-Piyush,28878765,piy@gmail.com,8768786507,1,,,True,2021,1yDev,Interview Round 2,CSE
-Akhil,20090987,akh@gmail.com,9876987698,2,App,Used Flutter,True,2021,1yDev,Test,Electrical
+Abhishek,29087584,abhi@gmail.com,9768564084,2,,,True,2020,1yDev,IP,Civil
+Asha,20987654,asha@gmail.com,9090878765,1,API,Used DRF,True,2020,1yDev,IP,Mechanical
+Piyush,28878765,piy@gmail.com,8768786507,1,,,True,2020,1yDev,IP,CSE
+Akhil,20090987,akh@gmail.com,9876987698,2,App,Used Flutter,True,2020,1yDev,IP,Electrical

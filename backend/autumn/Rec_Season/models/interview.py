@@ -11,20 +11,25 @@ class InterviewRounds(models.Model):
     def __str__(self):
         return str(self.round_no)
 
-class Interview(models.Model):
-    candidate=models.ForeignKey(CandidateSeasonData,on_delete=models.CASCADE)
-    interview_round=models.ForeignKey(InterviewRounds,on_delete=models.CASCADE)
-    # panel one to one mapped in Interview_Panel model
-    slot_timing=models.DateTimeField(null=True,blank=True)
-    status=models.CharField(max_length=10, choices=INTERVIEW_STATUS_CHOICES,null=True,blank=True)
-    call_notes=models.CharField(max_length=100,null=True,blank=True)
-
-
 class InterviewPanel(models.Model):
-    interview=models.OneToOneField(Interview,on_delete=models.CASCADE)
+    # interview=models.OneToOneField(Interview,on_delete=models.CASCADE)
+    season=models.ForeignKey(Season,on_delete=models.CASCADE,null=True,blank=True)
     location=models.CharField(max_length=100,null=True,blank=True)
     interviewer=models.ManyToManyField(IMGMember)
     active=models.CharField(max_length=1,choices=ACTIVE_CHOICES,null=True,blank=True)
+
+
+class Interview(models.Model):
+    candidate=models.ForeignKey(CandidateSeasonData,on_delete=models.CASCADE)
+    interview_round=models.ForeignKey(InterviewRounds,on_delete=models.CASCADE)
+    slot_timing=models.DateTimeField(null=True,blank=True)
+    status=models.CharField(max_length=10, choices=INTERVIEW_STATUS_CHOICES,null=True,blank=True)
+    call_notes=models.CharField(max_length=100,null=True,blank=True)
+    interviewers=models.ManyToManyField(IMGMember) #interviewers at the moment the panel was allotted to the candidate
+    panel=models.ForeignKey(InterviewPanel,on_delete=models.SET_NULL,null=True,blank=True)
+
+
+
 
 
     

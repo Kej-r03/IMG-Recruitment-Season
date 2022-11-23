@@ -10,6 +10,7 @@ import OnLogin from './components/OnLogin';
 import Rd from './components/redirector';
 import ProfilePage from './components/userProfile';
 import CandidateList from './components/CandidateList';
+import Panel from './components/Panel.js'
 import Form from './components/Form';
 import axios from 'axios';
 import {useEffect} from 'react';
@@ -28,6 +29,7 @@ function App() {
       <Route path="interview/:id" element={<PrivateRoute><Interview/></PrivateRoute>}></Route>
       <Route path="dashboard/:id" element={<PrivateRoute><Dashboard/></PrivateRoute>}></Route>
       <Route path="profile" element={<PrivateRoute><ProfilePage/></PrivateRoute>}></Route>
+      <Route path="panel/:id" element={<PrivateRoute><Panel/></PrivateRoute>}></Route>
       </>
     </Routes>
     </BrowserRouter>

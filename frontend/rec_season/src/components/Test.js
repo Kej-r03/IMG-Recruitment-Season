@@ -10,6 +10,7 @@ import App from "../App";
 import axios from "axios";
 import NavBar from "./NavBar";
 import { useParams } from "react-router-dom";
+import Account from './Account';
 
 
 axios.defaults.withCredentials = true;
@@ -56,16 +57,7 @@ export default function Test(){
                     Recruitment Test
                     
                 </Typography>
-                <IconButton variant="outlined" sx={{position:"absolute", right:"5vw ",}} color="secondary" onClick={openMenu}>
-                <AccountCircleIcon  fontSize="large" />
-                <Menu
-                    anchorEl={anchorEl}
-                    open={open}
-                >
-                    <MenuItem onClick={()=>{window.location.href="http://localhost:3000/profile/"}}>Profile</MenuItem>
-                    <MenuItem onClick={()=>{axios.get("http://localhost:8000/login/log_out/",{withCredentials:true});window.location.href=window.location.href;}}>Logout</MenuItem> 
-                </Menu>
-                </IconButton>
+                <Account />
                 <NavBar id={id}/>
                 </Toolbar>
             </AppBar>
@@ -87,6 +79,10 @@ export default function Test(){
                     <Divider />
                     <ListItemButton onClick={()=>{window.location.href="http://localhost:3000/interview/"+id+"/"}}>
                             <ListItemText primary="Interview Round"/>
+                    </ListItemButton>
+                    <Divider />
+                    <ListItemButton  onClick={()=>{window.location.href="http://localhost:3000/panel/"+id+"/"}}>
+                            <ListItemText primary="Interview Panels"/>
                     </ListItemButton>
                     <Divider />
                 </List>

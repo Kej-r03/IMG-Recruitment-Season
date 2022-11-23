@@ -19,6 +19,7 @@ export default function InterviewTable(props)
         .get("http://localhost:8000/int_rounds/get_info/",{params:{int_round_id:int_rounds[index].id}})
         .then(function(response){
             setRows(response.data)
+            console.log(response.data)
             setFilteredRows(response.data)
         })
         setRadioValue('All')
@@ -27,9 +28,9 @@ export default function InterviewTable(props)
 
 
     if(img_year>2)
-    var headers=[{value:'Sl No'},{value:"Name"},{value:'Phone'},{value:'Status'},{value:'Call Notes'},{value:'Slot Timings'},{value:'Marks'},{value:'Remarks'}]
+    var headers=[{value:'Sl No'},{value:"Name"},{value:'Phone'},{value:'Status'},{value:'Call Notes'},{value:'PanelID'},{value:'Slot Timings'},{value:'Marks'},{value:'Remarks'}]
     else
-    var headers=[{value:'Sl No'},{value:"Name"},{value:'Phone'},{value:'Status'},{value:'Call Notes'},{value:'Slot Timings'}]
+    var headers=[{value:'Sl No'},{value:"Name"},{value:'Phone'},{value:'Status'},{value:'Call Notes'},{value:'PanelID'},{value:'Slot Timings'}]
 
 
 
@@ -289,6 +290,7 @@ function InterviewTableBody(props){
             <TableCell>{row.phone}</TableCell>
             <TableCell onClick={()=>{handleOpenModal(row.id,row.status,row.call_notes,row.marks,row.remarks,row.slot_timing)}} >{row.status}</TableCell>
             <TableCell onClick={()=>{handleOpenModal(row.id,row.status,row.call_notes,row.marks,row.remarks,row.slot_timing)}} >{row.call_notes}</TableCell>
+            <TableCell>{row.panelID}</TableCell>
             <TableCell onClick={()=>{handleOpenModal(row.id,row.status,row.call_notes,row.marks,row.remarks,row.slot_timing)}} >{row.slot_timing && row.slot_timing.substring(0,10)+" / "+row.slot_timing.substring(11,19)}</TableCell>
             {img_year>2 &&
             <>

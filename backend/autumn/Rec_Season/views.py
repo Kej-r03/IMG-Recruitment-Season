@@ -253,8 +253,6 @@ class CandidateSeasonDataViewSet(viewsets.ModelViewSet):
         except Interview.DoesNotExist:
             i=Interview(candidate=c,interview_round=ir)
             i.save()
-            ip=InterviewPanel(interview=i)
-            ip.save()
             ires=InterviewResponse(interview=i)
             ires.save()
         
@@ -516,6 +514,7 @@ class InterviewRoundsViewSet(viewsets.ModelViewSet):
             info_dict.update({"id":interview.id})#this is the interview model id
             info_dict.update({"candidate_id":interview.candidate_id})
             info_dict.update({"call_notes":interview.call_notes})
+            info_dict.update({"panelID":interview.panel_id})
             info_dict.update({"slot_timing":interview.slot_timing})
             if interview.status=="C":
                 info_dict.update({"status":"Called"})
@@ -561,41 +560,35 @@ class InterviewViewSet(viewsets.ModelViewSet):
     queryset=Interview.objects.all()
     serializer_class=InterviewSerializer
 
-    @action(detail=False,permission_classes=(IsAuthenticated,))
-    def get_info(self,request):
-        int_round_id=self.request.query_params.get('int_round_id')
-        interviews=Interview.objects.filter(interview_round_id=int_round_id).values()
+    # @action(detail=False,permission_classes=(IsAuthenticated,))
+    # def get_info(self,request):
+    #     int_round_id=self.request.query_params.get('int_round_id')
+    #     interviews=Interview.objects.filter(interview_round_id=int_round_id).values()
         
-        for interview in interviews:
-            c=CandidateSeasonData.objects.get(id=interview['candidate_id'])
-            interview.update({"name":c.candidate.name})
-            interview.update({"phone":c.candidate.phone})
+    #     for interview in interviews:
+    #         c=CandidateSeasonData.objects.get(id=interview['candidate_id'])
+    #         interview.update({"name":c.candidate.name})
+    #         interview.update({"phone":c.candidate.phone})
 
-            if(interview['status']=='C'):
-                interview.update({"status":"Called"})
-            else:
-                interview.update({"status":"Not Called"})
+    #         if(interview['status']=='C'):
+    #             interview.update({"status":"Called"})
+    #         else:
+    #             interview.update({"status":"Not Called"})
 
-            try:
-                int_response=InterviewResponse.objects.get(interview_id=interview['id'])                
-                response=Evaluation.objects.get(pk=int_response.response_id)
-                interview.update({"marks":response.marks})
-                interview.update({"remarks":response.remarks})
-            except ObjectDoesNotExist:
-                interview.update({"marks":''})
-                interview.update({'remarks':''})
+    #         try:
+    #             int_response=InterviewResponse.objects.get(interview_id=interview['id'])                
+    #             response=Evaluation.objects.get(pk=int_response.response_id)
+    #             interview.update({"marks":response.marks})
+    #             interview.update({"remarks":response.remarks})
+    #         except ObjectDoesNotExist:
+    #             interview.update({"marks":''})
+    #             interview.update({'remarks':''})
             
-        res=Response(interviews)
-        return res
-
-
-class InterviewPanelViewSet(viewsets.ModelViewSet):
-    permission_classes=[Nobody]
-    queryset=InterviewPanel.objects.all()
-    serializer_class=InterviewPanelSerializer
+    #     res=Response(interviews)
+    #     return res
 
     @action(detail=False,permission_classes=(IsAuthenticated,))
-    def get_info(self,request): #used in Interview
+    def get_info(self,request):#used in Interview in rounds
         season_id=self.request.query_params.get('season_id')
         rounds=InterviewRounds.objects.filter(season_id=season_id)
         info_list=[]
@@ -603,12 +596,14 @@ class InterviewPanelViewSet(viewsets.ModelViewSet):
             candidate_list=round.latest_interview_candidate.all()
             for candidate in candidate_list:
                 info_dict={}
+                
                 info_dict.update({"type":round.interview_type})
                 c=CandidateSeasonData.objects.get(id=candidate.id)
                 candidate_info=Candidate.objects.get(id=c.candidate_id)
                 info_dict.update({"candidate_name":candidate_info.name})
                 info_dict.update({"enrolment":candidate_info.enrolment})
                 interview=Interview.objects.get(interview_round_id=round.id,candidate_id=c.id)
+                info_dict.update({"id":interview.id})
                 try:
                     info_dict.update({"slot_timing":interview.slot_timing})
                 except:
@@ -625,101 +620,285 @@ class InterviewPanelViewSet(viewsets.ModelViewSet):
                     info_dict.update({"status":"Done"})
                 else:
                     info_dict.update({"status":""})
-                
-                print(interview.id)
-                panel=InterviewPanel.objects.get(interview_id=interview.id)
-                interviewers=panel.interviewer.all()
-                info_dict.update({"id":panel.id})
-                try:
-                    info_dict.update({"interviewer1":interviewers[0].id})
-                    info_dict.update({"interviewer1name":interviewers[0].name})
-                except:
-                    info_dict.update({"interviewer1":""})
-                    info_dict.update({"interviewer1name":""})
-                try:
-                    info_dict.update({"interviewer2":interviewers[1].id})
-                    info_dict.update({"interviewer2name":interviewers[1].name})
-                except:
-                    info_dict.update({"interviewer2":""})
-                    info_dict.update({"interviewer2name":""})
-                try:
-                    info_dict.update({"active":panel.active})
-                except:
-                    info_dict.update({"active":""})
-                try:
-                    info_dict.update({"location":panel.location})
-                except:
-                    info_dict.update({"location":""})
-                try:
-                    info_dict.update({"interviewers":panel.interviewer.all().values()})
-                except:
-                    info_dict.update({"interviewers":""})
-                
+
+                info_dict.update({"panelID":interview.panel_id})
+                if request.user.current_year>2:
+                    try:
+                        int_response=InterviewResponse.objects.get(interview_id=interview.id)                
+                        response=Evaluation.objects.get(pk=int_response.response_id)
+                        info_dict.update({"marks":response.marks})
+                        info_dict.update({"remarks":response.remarks})
+                    except ObjectDoesNotExist:
+                        info_dict.update({"marks":''})
+                        info_dict.update({'remarks':''})
                 info_list.append(info_dict)
-                
-
-
-
-        # interviews=Interview.objects.filter(interview_round__season_id=season_id)
-        # for interview in interviews:
-        #     panel=InterviewPanel.objects.get(interview_id=interview.id)
-
-
-
-
-
-
-
-        # panels=InterviewPanel.objects.all()        
-        # info_list=[]
-        # for panel in panels:
-        #     info_dict={}
-        #     info_dict.update({"id":panel.id})
-        #     try:
-        #         info_dict.update({"active":panel.active})
-        #     except:
-        #         info_dict.update({"active":""})
-        #     try:
-        #         info_dict.update({"location":panel.location})
-        #     except:
-        #         info_dict.update({"location":""})
-        #     interview=Interview.objects.get(id=panel.interview_id)
-        #     try:
-        #         info_dict.update({"slot_timing":interview.slot_timing})
-        #     except:
-        #         info_dict.update({"slot_timing":""})
-        #     int_round=InterviewRounds.objects.get(id=interview.interview_round_id)
-        #     info_dict.update({"type":int_round.interview_type})
-        #     candidate_season_data=CandidateSeasonData.objects.get(id=interview.candidate_id)
-        #     candidate=Candidate.objects.get(id=candidate_season_data.candidate_id)
-        #     info_dict.update({"candidate_name":candidate.name})
-        #     info_dict.update({"enrolment":candidate.enrolment})
-        #     try:
-        #         info_dict.update({"interviewers":panel.interviewer.all().values()})
-        #     except:
-        #         info_dict.update({"interviewwers":""})
-        #     info_list.append(info_dict)
-
+            
         res=Response(info_list)
         return res
 
-    
+
     @action(detail=False,methods=['POST'],permission_classes=(IsAuthenticated,))
-    def update_interview(self,request): #used in Interview
+    def update_interview(self,request): #used in Interview in Rounds
+        id=request.data['id']
         slot_timing=request.data['timing']
+        panel_id=request.data['panelID']
+        status=request.data['intStatus']
+        marks=request.data['marks']
+        remarks=request.data['remarks']
+        
+        interview=Interview.objects.get(pk=id)
+        if status==None or status=="":
+            interview.status=None
+        else:
+            interview.status=status[0]
+        interview.slot_timing=slot_timing
+        
+        if panel_id!=None:
+            interview.panel=InterviewPanel.objects.get(id=panel_id)
+            interviewers=InterviewPanel.objects.get(id=panel_id).interviewer.all()
+            interview.interviewers.clear()
+            if 0<len(interviewers):
+                interview.interviewers.add(interviewers[0])
+            if 1<len(interviewers):
+                interview.interviewers.add(interviewers[1])
+
+        ir=InterviewResponse.objects.get(interview_id=id)
+        if request.user.current_year>2:
+            try:
+                eval=Evaluation.objects.get(id=ir.response_id)
+                eval.marks=marks
+                eval.remarks=remarks
+                eval.save()
+            except ObjectDoesNotExist:
+                eval=Evaluation(marks=marks,remarks=remarks)
+                eval.save()
+                ir.response=eval
+                ir.save()
+            
+            
+        
+        interview.save() 
+        
+        return HttpResponse("Done")
+
+
+
+class InterviewPanelViewSet(viewsets.ModelViewSet):
+    permission_classes=[Nobody]
+    queryset=InterviewPanel.objects.all()
+    serializer_class=InterviewPanelSerializer
+
+
+
+
+    # @action(detail=False,permission_classes=(IsAuthenticated,))
+    # def get_info(self,request): #used in Interview
+    #     season_id=self.request.query_params.get('season_id')
+    #     rounds=InterviewRounds.objects.filter(season_id=season_id)
+    #     info_list=[]
+    #     for round in rounds:
+    #         candidate_list=round.latest_interview_candidate.all()
+    #         for candidate in candidate_list:
+    #             info_dict={}
+    #             info_dict.update({"type":round.interview_type})
+    #             c=CandidateSeasonData.objects.get(id=candidate.id)
+    #             candidate_info=Candidate.objects.get(id=c.candidate_id)
+    #             info_dict.update({"candidate_name":candidate_info.name})
+    #             info_dict.update({"enrolment":candidate_info.enrolment})
+    #             interview=Interview.objects.get(interview_round_id=round.id,candidate_id=c.id)
+    #             try:
+    #                 info_dict.update({"slot_timing":interview.slot_timing})
+    #             except:
+    #                 info_dict.update({"slot_timing":""})
+    #             if interview.status=="C":
+    #                 info_dict.update({"status":"Called"})
+    #             elif interview.status=="N":
+    #                 info_dict.update({"status":"Not Called"})
+    #             elif interview.status=="O":
+    #                 info_dict.update({"status":"Ongoing"})
+    #             elif interview.status=="W":
+    #                 info_dict.update({"status":"Waiting"})
+    #             elif interview.status=="D":
+    #                 info_dict.update({"status":"Done"})
+    #             else:
+    #                 info_dict.update({"status":""})
+                
+    #             print(interview.id)
+    #             # panel=InterviewPanel.objects.get(interview_id=interview.id)
+    #             # interviewers=panel.interviewer.all()
+    #             # info_dict.update({"id":panel.id})
+    #             # try:
+    #             #     info_dict.update({"interviewer1":interviewers[0].id})
+    #             #     info_dict.update({"interviewer1name":interviewers[0].name})
+    #             # except:
+    #             #     info_dict.update({"interviewer1":""})
+    #             #     info_dict.update({"interviewer1name":""})
+    #             # try:
+    #             #     info_dict.update({"interviewer2":interviewers[1].id})
+    #             #     info_dict.update({"interviewer2name":interviewers[1].name})
+    #             # except:
+    #             #     info_dict.update({"interviewer2":""})
+    #             #     info_dict.update({"interviewer2name":""})
+    #             # try:
+    #             #     info_dict.update({"active":panel.active})
+    #             # except:
+    #             #     info_dict.update({"active":""})
+    #             # try:
+    #             #     info_dict.update({"location":panel.location})
+    #             # except:
+    #             #     info_dict.update({"location":""})
+    #             # try:
+    #             #     info_dict.update({"interviewers":panel.interviewer.all().values()})
+    #             # except:
+    #             #     info_dict.update({"interviewers":""})
+                
+    #             info_list.append(info_dict)
+                
+
+
+
+    #     # interviews=Interview.objects.filter(interview_round__season_id=season_id)
+    #     # for interview in interviews:
+    #     #     panel=InterviewPanel.objects.get(interview_id=interview.id)
+
+
+
+
+
+
+
+    #     # panels=InterviewPanel.objects.all()        
+    #     # info_list=[]
+    #     # for panel in panels:
+    #     #     info_dict={}
+    #     #     info_dict.update({"id":panel.id})
+    #     #     try:
+    #     #         info_dict.update({"active":panel.active})
+    #     #     except:
+    #     #         info_dict.update({"active":""})
+    #     #     try:
+    #     #         info_dict.update({"location":panel.location})
+    #     #     except:
+    #     #         info_dict.update({"location":""})
+    #     #     interview=Interview.objects.get(id=panel.interview_id)
+    #     #     try:
+    #     #         info_dict.update({"slot_timing":interview.slot_timing})
+    #     #     except:
+    #     #         info_dict.update({"slot_timing":""})
+    #     #     int_round=InterviewRounds.objects.get(id=interview.interview_round_id)
+    #     #     info_dict.update({"type":int_round.interview_type})
+    #     #     candidate_season_data=CandidateSeasonData.objects.get(id=interview.candidate_id)
+    #     #     candidate=Candidate.objects.get(id=candidate_season_data.candidate_id)
+    #     #     info_dict.update({"candidate_name":candidate.name})
+    #     #     info_dict.update({"enrolment":candidate.enrolment})
+    #     #     try:
+    #     #         info_dict.update({"interviewers":panel.interviewer.all().values()})
+    #     #     except:
+    #     #         info_dict.update({"interviewwers":""})
+    #     #     info_list.append(info_dict)
+
+    #     res=Response(info_list)
+    #     return res
+
+
+
+
+
+
+
+
+
+    
+    # @action(detail=False,methods=['POST'],permission_classes=(IsAuthenticated,)).......NEEDS TO BE RE-WRITTEN
+    # def update_interview(self,request): #used in Interview
+    #     slot_timing=request.data['timing']
+    #     location=request.data['location']
+    #     active=request.data['panelStatus']
+    #     id=request.data['id']
+    #     status=request.data['intStatus']
+    #     int1=request.data['int1']
+    #     int2=request.data['int2']
+    #     panel=InterviewPanel.objects.get(pk=id)
+    #     panel.interviewer.clear()
+    #     if active==None or active=="":
+    #         panel.active=None
+    #     else:
+    #         panel.active=active[0]
+    #     panel.location=location
+    #     panel.save()
+    #     try:
+    #         member1=IMGMember.objects.get(id=int1)
+    #         panel.interviewer.add(member1)
+    #     except:
+    #         panel.interviewer.add(None)
+    #     try:
+    #         member2=IMGMember.objects.get(id=int2)
+    #         panel.interviewer.add(member2)
+    #     except:
+    #         panel.interviewer.add(None)
+        
+        
+        
+    #     interview=Interview.objects.get(pk=panel.interview_id)
+    #     if status==None or status=="":
+    #         interview.status=None
+    #     else:
+    #         interview.status=status[0]
+    #     interview.slot_timing=slot_timing
+        
+    #     interview.save() 
+    #     return HttpResponse("Done")
+
+
+    @action(detail=False,permission_classes=(IsAuthenticated,))
+    def get_panels(self,request):
+        season_id=self.request.query_params.get('season_id')
+        panels=InterviewPanel.objects.filter(season_id=season_id)
+        info_list=[]
+        for panel in panels:
+            info_list.append(panel.id)
+        res=Response(info_list)
+        return res
+
+    @action(detail=False,permission_classes=(IsAuthenticated,))
+    def get_info(self,request):#used in InterviewPanels in Rounds
+        season_id=self.request.query_params.get('season_id')
+        panels=InterviewPanel.objects.filter(season_id=season_id)
+        info_list=[]
+        for panel in panels:
+            info_dict={}
+            info_dict.update({"id":panel.id})
+            info_dict.update({"location":panel.location})
+            info_dict.update({"active":panel.active})
+            interviewers=panel.interviewer.all()
+            try:
+                info_dict.update({"interviewer1":interviewers[0].id})
+                info_dict.update({"interviewer1name":interviewers[0].name})
+            except:
+                info_dict.update({"interviewer1":""})
+                info_dict.update({"interviewer1name":""})
+            try:
+                info_dict.update({"interviewer2":interviewers[1].id})
+                info_dict.update({"interviewer2name":interviewers[1].name})
+            except:
+                info_dict.update({"interviewer2":""})
+                info_dict.update({"interviewer2name":""})
+            info_list.append(info_dict)
+        res=Response(info_list)
+        return res
+
+
+
+    @action(detail=False,methods=['POST'],permission_classes=(IsAuthenticated,))
+    def create_panel(self,request):#used in InterviewPanels in Rounds
+        season_id=request.data["season_id"]
         location=request.data['location']
         active=request.data['panelStatus']
-        id=request.data['id']
-        status=request.data['intStatus']
+        if active!=None:
+            active=active[0]
         int1=request.data['int1']
         int2=request.data['int2']
-        panel=InterviewPanel.objects.get(pk=id)
-        panel.interviewer.clear()
-        if active==None or active=="":
-            panel.active=None
-        else:
-            panel.active=active[0]
-        panel.location=location
+        panel=InterviewPanel(season_id=season_id,location=location,active=active)
         panel.save()
         try:
             member1=IMGMember.objects.get(id=int1)
@@ -731,17 +910,41 @@ class InterviewPanelViewSet(viewsets.ModelViewSet):
             panel.interviewer.add(member2)
         except:
             panel.interviewer.add(None)
-        
-        
-        
-        interview=Interview.objects.get(pk=panel.interview_id)
-        if status==None or status=="":
-            interview.status=None
-        else:
-            interview.status=status[0]
-        interview.slot_timing=slot_timing
-        
-        interview.save() 
+        return HttpResponse("Done")
+
+
+
+    @action(detail=False,methods=['POST'],permission_classes=(IsAuthenticated,))
+    def delete_panel(self,request):#used in InterviewPanels in Rounds
+        panel_id=request.data['panel_id']        
+        ip=InterviewPanel.objects.get(id=panel_id)
+        ip.delete()
+        return HttpResponse("Deleted")
+
+
+
+    @action(detail=False,methods=['POST'],permission_classes=(IsAuthenticated,))
+    def update_panel(self,request):#used in InterviewPanels in Rounds
+        panel_id=request.data['panel_id']
+        location=request.data['location']
+        active=request.data['panelStatus']
+        if active!=None:
+            active=active[0]
+        int1=request.data['int1']
+        int2=request.data['int2']
+        ip=InterviewPanel.objects.get(id=panel_id)
+        ip.location=location
+        ip.active=active
+        ip.interviewer.clear()
+        try:
+            ip.interviewer.add(IMGMember.objects.get(id=int1))
+        except:
+            ip.interviewer.add(None)
+        try:
+            ip.interviewer.add(IMGMember.objects.get(id=int2))
+        except:
+            ip.interviewer.add(None)
+        ip.save()
         return HttpResponse("Done")
 
 
@@ -800,7 +1003,6 @@ class InterviewResponseViewSet(viewsets.ModelViewSet):
             marks=request.data['marks']
             remarks=request.data['remarks']
         callNotes=request.data['callNotes']
-        print(callNotes)
         status=request.data['status']
         interview_id=request.data['interview_id']
         int_response=InterviewResponse.objects.get(interview_id=interview_id)
@@ -813,6 +1015,8 @@ class InterviewResponseViewSet(viewsets.ModelViewSet):
             except ObjectDoesNotExist:
                 eval_resp=Evaluation(marks=marks,remarks=remarks)
                 eval_resp.save()
+                int_response.response=eval_resp
+                int_response.save()
         
         int=Interview.objects.get(id=interview_id)
         if status!=None:

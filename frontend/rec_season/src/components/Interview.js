@@ -1,4 +1,4 @@
-import { ThemeProvider,Box,AppBar, Toolbar,Typography,Select,createTheme,FormControl, Grid,Menu,MenuItem,Drawer,List,ListItemButton,Divider,ListItemText,Button, Card,CardContent, Modal} from "@mui/material";
+import { ThemeProvider,TextField,Box,AppBar, Toolbar,Typography,Select,createTheme,FormControl, Grid,Menu,MenuItem,Drawer,List,ListItemButton,Divider,ListItemText,Button, Card,CardContent, Modal} from "@mui/material";
 import { IconButton } from "@mui/material";
 import AccountCircleIcon from '@mui/icons-material/AccountCircle';
 import React, { useEffect } from "react";
@@ -6,6 +6,7 @@ import AddIcon from '@mui/icons-material/Add';
 import axios from "axios";
 import NavBar from './NavBar'
 import { useParams } from "react-router-dom";
+import Account from "./Account";
 
 const theme=createTheme({
     palette:{
@@ -25,6 +26,7 @@ axios.defaults.xsrfCookieName = 'csrftoken'
 export default function Interview(){
 
     const {id}=useParams()
+    const [IMGYear,setIMGYear]=React.useState()
     const [open,setOpen]=React.useState(false)
     const [anchorEl,setAnchorEl]=React.useState(null)
     const openMenu=(event)=>{
@@ -35,6 +37,11 @@ export default function Interview(){
 
     const [intRounds,setIntRounds]=React.useState()
     useEffect(()=>{
+        axios
+        .get("http://localhost:8000/login/get_year/",{params:{season_id:id}},{withCredentials:true})
+        .then(function(response){
+            setIMGYear(response.data.year)
+        })
         axios
         .get("http://localhost:8000/int_rounds/get_interviews/",{params:{season:id}},{withCredentials:true})
         .then(function(response){
@@ -59,16 +66,7 @@ export default function Interview(){
                 <Typography variant="h6" sx={{flexGrow:1,fontFamily:'cursive',fontSize:30 }} textAlign="center">                
                     Interview                    
                 </Typography>
-                <IconButton variant="outlined" sx={{position:"absolute", right:"5vw ",}} color="secondary" onClick={openMenu}>
-                <AccountCircleIcon  fontSize="large" />
-                <Menu
-                    anchorEl={anchorEl}
-                    open={open}
-                >
-                    <MenuItem onClick={()=>{window.location.href="http://localhost:3000/profile/"}}>Profile</MenuItem>
-                    <MenuItem onClick={()=>{axios.get("http://localhost:8000/login/log_out/",{withCredentials:true});window.location.href=window.location.href;}}>Logout</MenuItem> 
-                </Menu>
-                </IconButton>
+                <Account />
                 <NavBar id={id}/>
                 </Toolbar>
             </AppBar>
@@ -90,6 +88,10 @@ export default function Interview(){
                     <Divider />
                     <ListItemButton  selected={true} >
                             <ListItemText primary="Interview Round"/>
+                    </ListItemButton>
+                    <Divider />
+                    <ListItemButton  onClick={()=>{window.location.href="http://localhost:3000/panel/"+id+"/"}}>
+                            <ListItemText primary="Interview Panels"/>
                     </ListItemButton>
                     <Divider />
                 </List>
@@ -129,7 +131,7 @@ export default function Interview(){
 
 
 
-                <InterviewsDisplay id={id} />
+                <InterviewsDisplay id={id} IMGYear={IMGYear} />
             </Box>
         
         </ThemeProvider>
@@ -139,20 +141,20 @@ export default function Interview(){
 
 function InterviewsDisplay(props){
 
-    const {id}=props
+    const {id,IMGYear}=props
 
     const [interviews,setInterviews]=React.useState()
-    const [imgmembers,setImgmembers]=React.useState()
+    const [panels,setPanels]=React.useState()
     useEffect(()=>{
         axios
-        .get("http://localhost:8000/interview_panel/get_info/",{params:{season_id:id}},{withCredentials:true})
+        .get("http://localhost:8000/interview/get_info/",{params:{season_id:id}},{withCredentials:true})
         .then(function(response){
             setInterviews(response.data)
         })
         axios
-        .get("http://localhost:8000/img_member/",{withCredentials:true})
+        .get("http://localhost:8000/interview_panel/get_panels/",{params:{season_id:id}},{withCredentials:true})
         .then(function(response){
-            setImgmembers(response.data)
+            setPanels(response.data)
         })
     },[])
 
@@ -161,35 +163,31 @@ function InterviewsDisplay(props){
 
     //edit interview
     const [openEditInterview,setOpenEditInterview]=React.useState(false)
-    const [timing,setTiming]=React.useState()
-    const [location,setLocation]=React.useState()
-    const [panelStatus,setPanelStatus]=React.useState()
-    const [intStatus,setIntStatus]=React.useState()
-    const [interviewPanelID,setInterviewPanelID]=React.useState()
-    const [interviewer1,setInterviewer1]=React.useState()
-    const [interviewer2,setInterviewer2]=React.useState()
+    const [timing,setTiming]=React.useState(null)
+    const [Id,setId]=React.useState()
+    const [panelID,setPanelID]=React.useState(null)
+    const [intStatus,setIntStatus]=React.useState(null)
+    const [marks,setMarks]=React.useState(null)
+    const [remarks,setRemarks]=React.useState(null)
     const handleEditInterviewModal=(index)=>{
         setOpenEditInterview(true);
-        setInterviewPanelID(interviews[index].id);
-        setPanelStatus(interviews[index].active=='F'?"Free":interviews[index].active=='B'?"Busy":interviews[index].active=="I"?"Inactive":"");
-        setLocation(interviews[index].location);
+        setId(interviews[index].id)
+        setPanelID(interviews[index].panelID);
         setTiming(interviews[index].slot_timing);
         setIntStatus(interviews[index].status);
-        setInterviewer1(interviews[index].interviewer1);
-        setInterviewer2(interviews[index].interviewer2)}
-    const handleEditInterviewClose=()=>{setOpenEditInterview(false);setTiming();setLocation();setPanelStatus();setIntStatus();setInterviewPanelID();setInterviewer1();setInterviewer2()}
+        setMarks(interviews[index].marks)
+        setRemarks(interviews[index].remarks)
+    }
+    const handleEditInterviewClose=()=>{setOpenEditInterview(false);setId(null);setTiming(null);setPanelID(null);setIntStatus(null);setMarks(null);setRemarks(null)}
     const handleTimingEdit=(event)=>{setTiming(event.target.value)}
-    const handleLocationEdit=(event)=>{setLocation(event.target.value)}
-    const handlePanelStatus=(event)=>{setPanelStatus(event.target.value)}
+    const handlePanelID=(event)=>{setPanelID(event.target.value)}
     const handleIntStatus=(event)=>{setIntStatus(event.target.value)}
-    const handleInterviewer1Change=(event)=>{setInterviewer1(event.target.value)}
-    const handleInterviewer2Change=(event)=>{setInterviewer2(event.target.value)}
-    const editInterview=()=>{
-        const params=JSON.stringify({"timing":timing,"location":location,"panelStatus":panelStatus,"id":interviewPanelID,"intStatus":intStatus,"int1":interviewer1,"int2":interviewer2})
-        console.log(interviewer1)
-        console.log(interviewer2)
+    const handleMarksChange=(event)=>{setMarks(event.target.value)}
+    const handleRemarksChange=(event)=>{setRemarks(event.target.value)}
+    const editInterview=(index)=>{
+        const params=JSON.stringify({"id":Id,"timing":timing,"panelID":panelID,"intStatus":intStatus,"marks":marks,"remarks":remarks})
         axios
-        .post("http://localhost:8000/interview_panel/update_interview/",params,{headers:{'Content-Type':'application/json'}},{withCredentials:true})
+        .post("http://localhost:8000/interview/update_interview/",params,{headers:{'Content-Type':'application/json'}},{withCredentials:true})
         .then(function(response){
             handleEditInterviewClose()
             window.location.href=window.location.href
@@ -201,7 +199,7 @@ function InterviewsDisplay(props){
         {interviews!=null && interviews.map((interview,index)=>(
             <>
             <Grid item md={4}>
-            <Card variant="outlined" sx={{cursor:'pointer', height:'80vh'}} onClick={()=>handleEditInterviewModal(index)}>
+            <Card variant="outlined" sx={{cursor:'pointer', height:'75vh'}} onClick={()=>handleEditInterviewModal(index)}>
                 <CardContent>
                     <Typography variant="h4">Interview Details</Typography>
                     <Divider />
@@ -214,19 +212,28 @@ function InterviewsDisplay(props){
                     <Typography variant="h6">{interview.enrolment}</Typography><br />
                     <Typography variant="h5" sx={{fontWeight:'bold'}}>Slot Timing:</Typography>
                     {interview.slot_timing!=null && <Typography>{interview.slot_timing.substring(0,10)+" / "+interview.slot_timing.substring(11,19)}</Typography>}<br />
-                    <Typography variant="h5" sx={{fontWeight:'bold'}}>Location:</Typography>
+                    {/* <Typography variant="h5" sx={{fontWeight:'bold'}}>Location:</Typography>
                     <Typography variant="h6">{interview.location}</Typography><br />
-                    <Typography variant="h5" sx={{fontWeight:'bold'}}>Interviewers:</Typography>
+                    <Typography variant="h5" sx={{fontWeight:'bold'}}>Interviewers:</Typography> */}
                     {/* {interview.interviewers.map((interviewer)=>(
                         <Typography variant="h6">{interviewer.name}</Typography>
                     ))} */}
-                    <Typography variant="h6">{interview.interviewer1name}</Typography><br />
+                    {/* <Typography variant="h6">{interview.interviewer1name}</Typography><br />
                     <Typography variant="h6">{interview.interviewer2name}</Typography><br />
                     <br />
                     <Typography variant="h5" sx={{fontWeight:'bold'}}>Panel Status:</Typography>
-                    <Typography variant="h6">{interview.active=='F'?"Free":interview.active=='B'?"Busy":interview.active=="I"?"Inactive":""}</Typography><br />
+                    <Typography variant="h6">{interview.active=='F'?"Free":interview.active=='B'?"Busy":interview.active=="I"?"Inactive":""}</Typography><br /> */}
+                    <Typography variant="h5" sx={{fontWeight:'bold'}}>PanelID:</Typography>
+                    <Typography variant="h6">{interview.panelID}</Typography><br />
                     <Typography variant="h5" sx={{fontWeight:'bold'}}>Interview Status:</Typography>
                     <Typography variant="h6">{interview.status}</Typography><br />
+                    {IMGYear>2 && <>
+                    <Typography variant="h5" sx={{fontWeight:'bold'}}>Marks:</Typography>
+                    <Typography variant="h6">{interview.marks}</Typography><br />
+                    <Typography variant="h5" sx={{fontWeight:'bold'}}>Remarks:</Typography>
+                    <Typography variant="h6">{interview.remarks}</Typography><br />
+                    </>
+                    }
                     </Box>
                 </CardContent>
             </Card>
@@ -239,35 +246,13 @@ function InterviewsDisplay(props){
                     
                     <Typography>Slot Timing</Typography>
                     <input type="datetime-local" onChange={handleTimingEdit} defaultValue={timing}/>
-
-                    <Typography>Location</Typography>
-                    <input type="text" onChange={handleLocationEdit} defaultValue={location}/>
-
-                    <Typography>Select Interviewers</Typography>
-                    <FormControl >
-                    <Box>
-                    <Select value={interviewer1} style={{height:'3vh',width:'15vw'}} onChange={handleInterviewer1Change}>
-                        {imgmembers && imgmembers.map((member)=>(
-                            <MenuItem value={member.id}>{member.name}</MenuItem>
-                        ))}
-                    </Select>
-                    </Box>
-                    </FormControl><br />
-                    <FormControl >
-                    <Box sx={{mt:2}}>
-                    <Select value={interviewer2} style={{height:'3vh',width:'15vw'}} onChange={handleInterviewer2Change}>
-                        {imgmembers && imgmembers.map((member)=>(
-                            <MenuItem value={member.id}>{member.name}</MenuItem>
-                        ))}
-                    </Select>
-                    </Box>
-                    </FormControl>
                     
-                    <Typography>Panel Status</Typography>
-                    <Select value={panelStatus} onChange={handlePanelStatus}>
-                        <MenuItem value="Free">Free</MenuItem>
-                        <MenuItem value="Busy">Busy</MenuItem>
-                        <MenuItem value="Inactive">Inactive</MenuItem>
+
+                    <Typography>Panel ID</Typography>
+                    <Select value={panelID} onChange={handlePanelID}>
+                        {panels && panels.map((panel)=>(
+                            <MenuItem value={panel}>{panel}</MenuItem>
+                        ))}
                     </Select>
 
                     <Typography>Interview Status</Typography>
@@ -278,8 +263,23 @@ function InterviewsDisplay(props){
                         <MenuItem value="Waitng">Waiting</MenuItem>
                         <MenuItem value="Done">Done</MenuItem>
                     </Select>
+                    <br />
 
-                    <Button variant="contained" onClick={editInterview} sx={{position:'absolute',right:'2vw',bottom:'2vh'}}>Update</Button>
+                    {IMGYear>2 &&
+                    <>
+                    <FormControl sx={{mb:3}}>
+                        <Typography>Enter Marks</Typography>
+                        <input type="number" defaultValue={marks} onChange={handleMarksChange}/>
+                    </FormControl>
+                    <br />
+                    <FormControl>
+                        <Typography>Enter Remarks</Typography>
+                        <TextField defaultValue={remarks} onChange={handleRemarksChange} />
+                    </FormControl>
+                    </>
+                    }
+
+                    <Button variant="contained" onClick={()=>editInterview()} sx={{position:'absolute',right:'2vw',bottom:'2vh'}}>Update</Button>
             </Box>
             </Modal>
             </Grid>

@@ -969,9 +969,10 @@ class TestResponseViewSet(viewsets.ModelViewSet):
         remarks=request.data['remarks']
         ques_id=request.data['ques_id']
         candidate_season_id=request.data['candidate_season_id']
+        ques=TestQuestion.objects.get(q_id=ques_id)
         if request.user.current_year>2:
             try:
-                test_response=TestResponse.objects.get(candidate_id=candidate_season_id,question_id=ques_id)
+                test_response=TestResponse.objects.get(candidate_id=candidate_season_id,question_id=ques.id)
                 eval_resp=Evaluation.objects.get(id=test_response.response_id)
                 eval_resp.marks=marks
                 eval_resp.remarks=remarks
@@ -980,7 +981,6 @@ class TestResponseViewSet(viewsets.ModelViewSet):
                 eval_resp=Evaluation(marks=marks,remarks=remarks)
                 eval_resp.save()
                 candidate=CandidateSeasonData.objects.get(pk=candidate_season_id)
-                ques=TestQuestion.objects.get(pk=ques_id)
                 test_response=TestResponse(response=eval_resp,candidate=candidate,question=ques)
                 test_response.save()
         return HttpResponse("Done")
@@ -1005,6 +1005,7 @@ class InterviewResponseViewSet(viewsets.ModelViewSet):
         callNotes=request.data['callNotes']
         status=request.data['status']
         interview_id=request.data['interview_id']
+        panel_id=request.data['panelID']
         int_response=InterviewResponse.objects.get(interview_id=interview_id)
         if request.user.current_year>2:
             try:            
@@ -1023,5 +1024,13 @@ class InterviewResponseViewSet(viewsets.ModelViewSet):
             int.status=status[0]
         int.call_notes=callNotes
         int.slot_timing=timing
+        if panel_id!=None:
+            int.panel=InterviewPanel.objects.get(id=panel_id)
+            interviewers=InterviewPanel.objects.get(id=panel_id).interviewer.all()
+            int.interviewers.clear()
+            if 0<len(interviewers):
+                int.interviewers.add(interviewers[0])
+            if 1<len(interviewers):
+                int.interviewers.add(interviewers[1])
         int.save()
         return HttpResponse("Done")

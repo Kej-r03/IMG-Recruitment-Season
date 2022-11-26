@@ -1,16 +1,16 @@
 import './App.css';
 import React, { Component } from 'react'
 import Home from './components/Home';
-import Test from './components/Test';
-import Interview from './components/Interview';
+import Test from './components/Rounds/Test';
+import Interview from './components/Rounds/Interview';
 // import Evaluate from './components/Evaluate';
 import { BrowserRouter, Routes, Route, Navigate, Router } from "react-router-dom";
-import Dashboard from './components/Dashboard';
+import Dashboard from './components/Dashboard/Dashboard';
 import OnLogin from './components/OnLogin';
 import Rd from './components/redirector';
 import ProfilePage from './components/userProfile';
 import CandidateList from './components/CandidateList';
-import Panel from './components/Panel.js'
+import Panel from './components/Rounds/Panel.js'
 import Form from './components/Form';
 import axios from 'axios';
 import {useEffect} from 'react';

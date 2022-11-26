@@ -2,8 +2,8 @@ import React, { useEffect } from "react";
 import { useParams } from "react-router-dom";
 import { AppBar, Tab,Modal,ThemeProvider,Chip,Box,Typography,Card,CardContent,Link, Toolbar, Button, Drawer, Divider, List, ListItemButton ,ListItemText, Grid, Breadcrumbs, Tabs, Accordion, AccordionSummary, AccordionDetails, ListItem, FormControl,InputLabel,Select,TextField} from "@mui/material";
 import axios from "axios";
-import NavBar from "./NavBar";
-import Account from './Account';
+import NavBar from "../NavBar";
+import Account from '../Account';
 import { MenuItem,Paper,Menu,IconButton, Avatar} from "@mui/material";
 import { createTheme } from '@mui/material/styles'
 import AddIcon from '@mui/icons-material/Add';
@@ -152,87 +152,86 @@ function PanelDisplay(props){
         <Button variant="contained" startIcon={<AddIcon />} sx={{position:'absolute', right:'3vw', top:'15vh',width:'10vw'}} onClick={handleModalOpen}>Add Panel</Button>
 
         <Modal open={openModal} onClose={handleModalClose}>
-        <Box sx={{height:"40vh", width:"25vw", position:"absolute", bgcolor:"background.paper", boxShadow:24, top:"50%",left:"50%",transform: 'translate(-50%, -50%)', p:3}}>
-            <Typography sx={{fontWeight:'bold',fontSize:20}}>Enter Panel Details</Typography>
+        <Box sx={{height:"40vh", width:"20vw", position:"absolute", bgcolor:"background.paper", boxShadow:24, top:"50%",left:"50%",transform: 'translate(-50%, -50%)', p:3,borderRadius:2.5}}>
+            <Typography sx={{mb:3,fontWeight:'bold',fontSize:20}}>Add Panel</Typography>
 
-            <Typography>Location</Typography>
-            <input type="text" onChange={handleLocationEdit}/>
+                <TextField label="Location" onChange={handleLocationEdit} sx={{mb:3,width:'20vw'}}/><br />
 
-            <Typography>Select Interviewers</Typography>
-                <FormControl >
-                <Box>
-                <Select value={interviewer1} style={{height:'3vh',width:'15vw'}} onChange={handleInterviewer1Change}>
+                <FormControl sx={{mb:3}}>
+                <InputLabel id="int1">Interviewer 1</InputLabel>
+                <Select labelID="int1" label="Interviewer 1" value={interviewer1} onChange={handleInterviewer1Change} sx={{width:'20vw'}}>
                     {imgmembers && imgmembers.map((member)=>(
                         <MenuItem value={member.id}>{member.name}</MenuItem>
                     ))}
                 </Select>
-                </Box>
                 </FormControl><br />
-                <FormControl >
-                <Box sx={{mt:2}}>
-                <Select value={interviewer2} style={{height:'3vh',width:'15vw'}} onChange={handleInterviewer2Change}>
+                <FormControl sx={{mb:3}}>
+                <InputLabel id="int2">Interviewer 2</InputLabel>
+                <Select labelID="int2" label="Interviewer 2" value={interviewer2}  onChange={handleInterviewer2Change} sx={{width:'20vw'}}>
                     {imgmembers && imgmembers.map((member)=>(
                         <MenuItem value={member.id}>{member.name}</MenuItem>
                     ))}
                 </Select>
-                </Box>
                 </FormControl>
 
-                <Typography>Panel Status</Typography>
-                <Select value={panelStatus} onChange={handlePanelStatus}>
+                <FormControl sx={{mb:3}}>
+                <InputLabel id="panel_stat">Panel Status</InputLabel>
+                <Select labelID="panel_stat" label="Panel Status" value={panelStatus} onChange={handlePanelStatus} sx={{width:'20vw'}}>
                     <MenuItem value="Free">Free</MenuItem>
                     <MenuItem value="Busy">Busy</MenuItem>
                     <MenuItem value="Inactive">Inactive</MenuItem>
                 </Select>
+                </FormControl>
 
-                <Button variant="contained" onClick={createPanel} sx={{position:'absolute',right:'2vw',bottom:'2vh'}}>Create</Button>
+                <Button variant="contained" onClick={createPanel} sx={{position:'absolute',right:'1.5vw',bottom:'1.5vh'}}>Create</Button>
         </Box>
         </Modal>
 
         <Grid container spacing={5} sx={{p:4}} justifyContent="center">
             {panels!=null && panels.map((panel,index)=>(
                 <Grid item md={4} mt={10}>
-                <Card variant="outlined" sx={{cursor:'pointer', height:'55vh'}}>
+                <Card variant="outlined" sx={{height:'55vh',border:1}}>
                     <CardContent>
-                        <Typography variant="h4">Panel ID {panel.id}</Typography>
+                        <Typography variant="h4" sx={{ml:4}}>Panel ID #{panel.id}</Typography>
                         <Button variant="outlined" sx={{position:"relative", left:'17vw', bottom:'4vh'}} onClick={()=>{deletePanel(index)}}>Remove</Button>
                         <Divider />
                         <Box sx={{p:3}}>
-                        {/* <Typography variant="h5" sx={{fontWeight:'bold'}}>Location:</Typography> */}
-                        {/* <Typography variant="h6">{panel.location}</Typography><br /> */}
-                        <TextField label="Location" defaultValue={panel.location} onChange={handleLocationEdit}></TextField>
-                        {/* <Typography variant="h5" sx={{fontWeight:'bold'}}>Interviewers:</Typography> */}
-                        {/* <Typography variant="h6">{panel.interviewer1name}</Typography><br /> */}
-                        {/* <Typography variant="h6">{panel.interviewer2name}</Typography><br /> */}
+
+                        <TextField label="Location" defaultValue={panel.location} onChange={handleLocationEdit} sx={{width:'15vw'}}></TextField>
+                        
                         <Box sx={{mt:2}}>
+                        <FormControl sx={{mb:3}}>
                         <InputLabel id="int1">Interviewer 1</InputLabel>
-                        <Select labelID="int1" defaultValue={panel.interviewer1} onChange={handleInterviewer1Change}>
+                        <Select labelID="int1" label="Interviewer 1" defaultValue={panel.interviewer1} onChange={handleInterviewer1Change} sx={{width:'15vw'}}>
                             {imgmembers.map((member)=>(
                                 <MenuItem value={member.id}>{member.name}</MenuItem>
                             ))}
                         </Select>
+                        </FormControl>
                         </Box>
                         
                         <Box sx={{mt:2}}>
+                        <FormControl sx={{mb:3}}>
                         <InputLabel id="int2">Interviewer 2</InputLabel>
-                        <Select labelID="int2" defaultValue={panel.interviewer2} onChange={handleInterviewer2Change}>
+                        <Select labelID="int2" label="Interviewer 2" defaultValue={panel.interviewer2} onChange={handleInterviewer2Change} sx={{width:'15vw'}}>
                             {imgmembers.map((member)=>(
                                 <MenuItem value={member.id}>{member.name}</MenuItem>
                             ))}
                         </Select>
+                        </FormControl>
                         </Box>
                         
-                        {/* <Typography variant="h5" sx={{fontWeight:'bold'}}>Panel Status:</Typography> */}
-                        {/* <Typography variant="h6">{panel.active=='F'?"Free":panel.active=='B'?"Busy":panel.active=="I"?"Inactive":""}</Typography><br /> */}
                         <Box sx={{mt:2}}>
+                        <FormControl>
                         <InputLabel id="status">Panel Status</InputLabel>
-                        <Select labelID="status" defaultValue={panel.active=='F'?"Free":panel.active=='B'?"Busy":panel.active=="I"?"Inactive":""} onChange={handlePanelStatus}>
+                        <Select labelID="status" label="Panel Status" defaultValue={panel.active=='F'?"Free":panel.active=='B'?"Busy":panel.active=="I"?"Inactive":""} onChange={handlePanelStatus} sx={{width:'15vw'}}>
                             <MenuItem value={'Free'}>Free</MenuItem>
                             <MenuItem value={'Busy'}>Busy</MenuItem>
                             <MenuItem value={'Inactive'}>Inactive</MenuItem>
                         </Select>
+                        </FormControl>
                         </Box>
-                        <Button variant="outlined" sx={{postion:"absolute",left:'16vw', top:'2vh'}} onClick={()=>{updatePanel(index)}}>Update</Button>
+                        <Button variant="outlined" sx={{postion:"absolute",left:'16vw',top:'3vh'}} onClick={()=>{updatePanel(index)}}>Update</Button>
                         </Box>
                     </CardContent>
                 </Card>

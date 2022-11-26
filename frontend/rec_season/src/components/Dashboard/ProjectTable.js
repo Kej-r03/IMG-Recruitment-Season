@@ -1,8 +1,9 @@
-import { TableContainer, Table,TableCell,Checkbox,Menu,MenuItem, Modal,FormLabel,TableBody,TablePagination,FormControl,Button, TableHead, TableRow, Typography, TableFooter,TextField } from "@mui/material";
+import { TableContainer, Table,TableCell,Divider,Checkbox,Menu,MenuItem, Modal,FormLabel,TableBody,TablePagination,FormControl,Button, TableHead, TableRow, Typography, TableFooter,TextField,} from "@mui/material";
 import { Box } from "@mui/system";
 import axios from "axios";
 import React, { useEffect } from "react";
 import FilterListIcon from '@mui/icons-material/FilterList';
+import Input from "@material-ui/core/Input";
 
 
 axios.defaults.withCredentials = true;
@@ -61,21 +62,25 @@ export default function Project(props)
         {img_year>2 && <Button variant="contained" sx={{position:"absolute", right:'5vw',top:'28vh',width:'10vw'}} startIcon={<FilterListIcon />} onClick={openFilter}>Filter</Button>}
 
             <Modal open={open} onClose={closeFilter}>
-            <Box sx={{height:"15vh", width:"10vw", position:"absolute", bgcolor:"background.paper", boxShadow:24, top:"30%",right:"5.5vw", p:3}}>
+            <Box sx={{height:"20vh", width:"15vw", position:"absolute", bgcolor:"background.paper", boxShadow:24, top:"30%",right:"5.5vw", p:3,borderRadius:2.5}}>
 
-                <Typography sx={{fontWeight:'bold'}}>Filters</Typography>
+                <Typography variant="h5" sx={{fontWeight:'bold'}}>Filters</Typography>
+                <br />
 
                 {img_year>2 && 
-                <>
-                <FormLabel>Marks</FormLabel><br />
-                    <FormControl>
-                        Greater than <input type="number" style={{width:'2vw'}} defaultValue={filterMarks} onChange={(event)=>{changeMarksFilter(event)}}  />
-                    </FormControl>
+                <>                
+                <Divider />
+                <div style={{ marginTop:10}}>
+                <FormControl>
+                    <FormLabel sx={{position:'relative', top:20}}>Marks (Greater than)</FormLabel><br />
+                    <Input type="number"  defaultValue={filterMarks} onChange={(event)=>{changeMarksFilter(event)}} />
+                </FormControl>
+                </div>
                 </>
                 }
 
                 <Button variant="contained" onClick={applyFilter} sx={{position:"absolute", right:'7vw', bottom:'2vh'}}>Apply</Button>
-                <Button variant="contained" onClick={resetFilter} sx={{position:"absolute", right:'2vw', bottom:'2vh'}}>Reset</Button>
+                <Button variant="outlined" onClick={resetFilter} sx={{position:"absolute", right:'2vw', bottom:'2vh'}}>Reset</Button>
                 
             </Box>
             </Modal>
@@ -221,23 +226,20 @@ function ProjectTableBody(props){
 
 
                 <Modal open={openModal && row.id==openModalValue} onClose={handleCloseModal}>
-                    <Box sx={{height:"42vh", width:"20vw", position:"absolute", bgcolor:"background.paper", boxShadow:24, top:"50%",left:"50%",transform: 'translate(-50%, -50%)', p:3}}>
-                    <Typography sx={{mb:3,fontSize:20,fontWeight:'bold'}}>Project Details</Typography>
+                    <Box sx={{height:"35vh", width:"20vw", position:"absolute", bgcolor:"background.paper", boxShadow:24, top:"50%",left:"50%",transform: 'translate(-50%, -50%)', p:3,borderRadius:2.5}}>
+                    <Typography sx={{mb:6,fontSize:20,fontWeight:'bold'}}>Project Details</Typography>
 
                     <FormControl sx={{mb:3}}>
-                    <Typography>Project Details</Typography>
-                    <TextField type='text' value={row.project_details} variant='outlined' inputProps={{ readOnly: true, }}/>
+                    <TextField label="Project Details" type='text' value={row.project_details} variant='outlined' inputProps={{ readOnly: true, }}/>
                     </FormControl>
                     
                     {img_year>2 && <>
                     <FormControl sx={{mb:3}}>
-                    <Typography>Enter Marks</Typography>
-                    <input type="number" defaultValue={row.marks} onChange={handleMarksChange}/>
+                    <TextField label="Enter Marks" type="number" defaultValue={row.marks} onChange={handleMarksChange}/>
                     </FormControl>
 
                     <FormControl>
-                    <Typography>Enter Remarks</Typography>
-                    <TextField defaultValue={row.remarks} onChange={handleRemarksChange} />
+                    <TextField label="Enter Remarks" defaultValue={row.remarks} onChange={handleRemarksChange} />
                     </FormControl>
 
                     <Button variant="contained" sx={{position:"absolute", right:"2vw", bottom:'2vh'}} onClick={changeMarksRemarks}>Submit</Button>

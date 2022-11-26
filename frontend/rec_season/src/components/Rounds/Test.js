@@ -6,11 +6,10 @@ import AddIcon from '@mui/icons-material/Add';
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
 import AssignmentIcon from '@mui/icons-material/Assignment';
 import AccountCircleIcon from '@mui/icons-material/AccountCircle';
-import App from "../App";
 import axios from "axios";
-import NavBar from "./NavBar";
+import NavBar from "../NavBar";
 import { useParams } from "react-router-dom";
-import Account from './Account';
+import Account from '../Account';
 
 
 axios.defaults.withCredentials = true;
@@ -290,11 +289,16 @@ function PaperTab(props){
           {img_year>2 && <Button variant="outlined" startIcon={<AddIcon />} sx={{position:"absolute", right:"25%"}} onClick={handlePaperModalOpen}>Add Paper</Button>}
 
           <Modal open={openPaperModal} onClose={handlePaperModalClose}>
-              <Box sx={{height:"17vh", width:"15vw", position:"absolute", bgcolor:"background.paper", boxShadow:24, top:"50%",left:"50%",transform: 'translate(-50%, -50%)', p:3}}>
-                    <Typography>Paper Number</Typography>
-                    <input type="number" onChange={handlePaperNumberAdd} />
-                    <Typography>Paper Timing</Typography>
-                    <input type="datetime-local" onChange={handleTimingAdd} />
+              <Box sx={{height:"25vh", width:"15vw", position:"absolute", bgcolor:"background.paper", boxShadow:24, top:"50%",left:"50%",transform: 'translate(-50%, -50%)', p:3,borderRadius:2.5}}>
+                    
+                    <Typography sx={{mb:3,fontSize:20,fontWeight:'bold'}}>Add Paper</Typography>
+
+                    <FormControl sx={{mb:3}}>
+                        <TextField label="Paper Number" type="number" onChange={handlePaperNumberAdd} sx={{width:'15vw'}}/>
+                    </FormControl>
+                    <FormControl sx={{mb:3}}>
+                        <TextField label="Paper-Timing" type="datetime-local" onChange={handleTimingAdd} InputLabelProps={{shrink: true,}} sx={{width:'15vw'}}/>                    
+                    </FormControl>
 
                     <Button variant="contained" onClick={createPaper} sx={{position:'absolute',right:'2vw',bottom:'2vh'}}>Add Paper</Button>
               </Box>
@@ -321,13 +325,17 @@ function PaperTab(props){
                 </Box>
 
                 <Modal open={openSectionModal} onClose={handleSectionModalClose}>
-                    <Box sx={{height:"20vh", width:"15vw", position:"absolute", bgcolor:"background.paper", boxShadow:24, top:"50%",left:"50%",transform: 'translate(-50%, -50%)', p:3}}>
-                        <Typography>Section Name</Typography>
-                        <input type="text" onChange={handleSectionNameAdd} />
-                        <Typography>Section Percent Weightage</Typography>
-                        <input type="number" onChange={handleSectionWeightageAdd} />
+                    <Box sx={{height:"25vh", width:"15vw", position:"absolute", bgcolor:"background.paper", boxShadow:24, top:"50%",left:"50%",transform: 'translate(-50%, -50%)', p:3,borderRadius:2.5}}>
+                        <Typography sx={{mb:3,fontSize:20,fontWeight:'bold'}}>Add Section</Typography>
 
-                        <Button variant="contained" onClick={createSection} sx={{mt:'2vh'}}>Create Section</Button>
+                        <FormControl sx={{mb:3}}>
+                            <TextField label="Section Name" onChange={handleSectionNameAdd} sx={{width:'15vw'}}/>
+                        </FormControl>
+                        <FormControl sx={{mb:3}}>
+                            <TextField label="Section Percent Weightage" type="number" onChange={handleSectionWeightageAdd} sx={{width:'15vw'}}/>                    
+                        </FormControl>
+
+                        <Button variant="contained" onClick={createSection} sx={{position:'absolute',right:'1vw',bottom:'2vh'}}>Create Section</Button>
                     </Box>
                 </Modal>
 
@@ -343,10 +351,15 @@ function PaperTab(props){
                         <Chip label={"Weightage: "+section.percent_weightage} sx={{position:"absolute", right: 250}} />}
                         
                         <Modal open={openWeightageModal && weightageModalValue==section.id} onClose={handleWeightageModalClose}>
-                            <Box sx={{height:"10vh", width:"10vw", position:"absolute", bgcolor:"background.paper", boxShadow:24, top:"50%",left:"50%",transform: 'translate(-50%, -50%)', p:3}}>
-                                <Typography>Update {section.name} Weightage</Typography>
-                                <input type="number" defaultValue={section.percent_weightage} onChange={handleWeightageChange}/>
-                                <Button variant="contained" sx={{position:"absolute", right:'3vw',bottom:'2vh'}} onClick={()=>{updateWeightage(section.id)}}>Update</Button>
+                            <Box sx={{height:"17vh", width:"15vw", position:"absolute", bgcolor:"background.paper", boxShadow:24, top:"50%",left:"50%",transform: 'translate(-50%, -50%)', p:3,borderRadius:2.5}}>
+                                {/* <Typography>Update {section.name} Weightage</Typography>
+                                <input type="number" defaultValue={section.percent_weightage} onChange={handleWeightageChange}/> */}
+                                <Typography sx={{mb:3,fontSize:20,fontWeight:'bold'}}>Update Weightage</Typography>
+
+                                <FormControl sx={{mb:3}}>
+                                    <TextField label={"Percent Weightage"} type="number" defaultValue={section.percent_weightage} onChange={handleWeightageChange} sx={{width:'15vw'}}/>                    
+                                </FormControl>
+                                <Button variant="contained" sx={{position:"absolute", right:'1vw',bottom:'1.5vh'}} onClick={()=>{updateWeightage(section.id)}}>Update</Button>
                             </Box>
                         </Modal>
 
@@ -361,7 +374,7 @@ function PaperTab(props){
                             open={openNewQuestionModal && newQuestionModalValue==section.id}
                             onClose={handleNewQuestionModalClose}
                             >
-                                <Box sx={{height:"70vh", width:"40vw", position:"absolute", bgcolor:"background.paper", boxShadow:24, top:"50%",left:"50%",transform: 'translate(-50%, -50%)', p:3}}>
+                                <Box sx={{height:"70vh", width:"40vw", position:"absolute", bgcolor:"background.paper", boxShadow:24, top:"50%",left:"50%",transform: 'translate(-50%, -50%)', p:3,borderRadius:2.5}}>
 
                                 <Typography variant="h4" sx={{mt:5, ml:3}}>Question ID</Typography>
                                 <Divider /> 
@@ -397,7 +410,7 @@ function PaperTab(props){
                                 </Box>
                                 </div>
 
-                                <Button variant="contained" sx={{position:'absolute', right:'5vw'}} onClick={createQuestion}>Create Question</Button>
+                                <Button variant="contained" sx={{position:'absolute', right:'3vw'}} onClick={createQuestion}>Create Question</Button>
                                 </Box>
                             </Modal>
                     </AccordionSummary>
@@ -434,7 +447,7 @@ function PaperTab(props){
                             open={modalValue==ques.id &&modalOpen}
                             onClose={handleModalClose}
                             >
-                                <Box sx={{height:"54vh", width:"40vw", position:"absolute", bgcolor:"background.paper", boxShadow:24, top:"50%",left:"50%",transform: 'translate(-50%, -50%)', p:3}}>
+                                <Box sx={{height:"54vh", width:"40vw", position:"absolute", bgcolor:"background.paper", boxShadow:24, top:"50%",left:"50%",transform: 'translate(-50%, -50%)', p:3,borderRadius:2.5}}>
                                 <Box>
                                 <Typography variant="h4" sx={{mt:5, ml:3}}>
                                     Question Text
@@ -452,11 +465,11 @@ function PaperTab(props){
                                 <Divider />
                                 <FormControl sx={{ml:3,mr:3, width:"37vw",height:'10vh'}}>
                                 <Box sx={{mt:4}}>
-                                <select defaultValue={ques.assigned_to_name} value={selectValue} style={{height:'5vh',width:'37vw'}} onChange={handleSelectChange}>
+                                <Select defaultValue={ques.assigned_to_name} value={selectValue} style={{height:'5vh',width:'37vw'}} onChange={handleSelectChange}>
                                     {imgmembers.map((member)=>(
-                                        <option value={member.id}>{member.name}</option>
+                                        <MenuItem value={member.id}>{member.name}</MenuItem>
                                     ))}
-                                </select>
+                                </Select>
                                 </Box>
                                 </FormControl>
                                 
@@ -468,7 +481,7 @@ function PaperTab(props){
                                 </Box>
                                 </div>
                                 
-                                <Button variant="contained" sx={{position:'absolute', right:'5vw'}} onClick={updateQuestion}>Update</Button>
+                                <Button variant="contained" sx={{position:'absolute', right:'3vw',bottom:'2vh'}} onClick={updateQuestion}>Update</Button>
                                 </Box>
                             </Modal>
                             <Divider />

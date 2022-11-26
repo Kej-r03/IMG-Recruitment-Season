@@ -1,4 +1,4 @@
-import { ThemeProvider,IconButton,Menu,MenuItem,Modal, TextField,Button,Typography,Link,Breadcrumbs,createTheme,AppBar, Paper,Table, TablePagination,TableFooter, Toolbar,Box,Tabs,Tab,Divider, TableContainer, TableHead, TableRow, TableCell, TableBody, TableSortLabel, Checkbox, FormLabel, Radio,RadioGroup, FormControlLabel ,FormControl, Select} from "@mui/material";
+import { ThemeProvider,IconButton,Menu,MenuItem,Modal, TextField,Button,Typography,Link,Breadcrumbs,createTheme,AppBar, Paper,Table, TablePagination,TableFooter, Toolbar,Box,Tabs,Tab,Divider, TableContainer, TableHead, TableRow, TableCell, TableBody, TableSortLabel, Checkbox, FormLabel, Radio,RadioGroup, FormControlLabel ,FormControl, Select, InputLabel} from "@mui/material";
 import React, { useEffect } from "react";
 import SearchOutlinedIcon from '@mui/icons-material/SearchOutlined';
 import AccountCircleIcon from '@mui/icons-material/AccountCircle';
@@ -8,8 +8,8 @@ import TestTable from "./TestTable";
 import InterviewTable from "./InterviewTable";
 import Selected from "./SelectedTable";
 import Project from "./ProjectTable";
-import NavBar from "./NavBar";
-import Account from "./Account";
+import NavBar from "../NavBar";
+import Account from "../Account";
 import { useParams } from "react-router-dom";
 
 
@@ -156,14 +156,21 @@ function RoundTab(props){
           {IMGYear>2 && <Button variant="contained" startIcon={<AddIcon />} sx={{position:'absolute', right:'1vw', bottom:'9vh'}} onClick={()=>{window.location.href="http://localhost:3000/test/"+season_id+"/"}}>Add Paper</Button>}
           
           <Modal open={open} onClose={handleModalClose}>
-          <Box sx={{height:"17vh", width:"15vw", position:"absolute", bgcolor:"background.paper", boxShadow:24, top:"50%",left:"50%",transform: 'translate(-50%, -50%)', p:3}}>
-                    <Typography>Interview Round Number</Typography>
-                    <input type="number" onChange={handleRoundChange} />
-                    <Typography>Interview Type</Typography>
-                    <Select value={type} onChange={handleTypeChange}>
+          <Box sx={{height:"25vh", width:"15vw", position:"absolute", bgcolor:"background.paper", boxShadow:24, top:"50%",left:"50%",transform: 'translate(-50%, -50%)', p:3,borderRadius:2.5}}>
+                    
+                    <Typography sx={{mb:3,fontSize:20,fontWeight:'bold'}}>Add Interview</Typography>
+
+                    <FormControl sx={{mb:3}}>
+                        <TextField label="Interview Round Number" type="number" onChange={handleRoundChange} sx={{width:'15vw'}}/>
+                    </FormControl>
+                    
+                    <FormControl sx={{mb:3}}>
+                    <InputLabel id="round_type">Interview Type</InputLabel>
+                    <Select labelID="round_type" label="Interview Type" value={type} onChange={handleTypeChange} sx={{width:'15vw'}}>
                         <MenuItem value="Technical">Technical</MenuItem>
                         <MenuItem value="HR">HR</MenuItem>
                     </Select>
+                    </FormControl>
 
                     <Button variant="contained" onClick={createInterview} sx={{position:'absolute',right:'2vw',bottom:'2vh'}}>Add Round</Button>
             </Box>
@@ -174,7 +181,7 @@ function RoundTab(props){
         
         {value<test_papers.length &&<TestTable value={value} test_papers={test_papers} int_rounds={int_rounds} img_year={IMGYear}/>}
         {value==test_papers.length && <Project int_rounds={int_rounds} season_id={season_id} img_year={IMGYear}/>}
-        {value>=test_papers.length+1  && value<int_rounds.length+1+test_papers.length && <InterviewTable int_rounds={int_rounds} index={value-1-test_papers.length} img_year={IMGYear}/>}
+        {value>=test_papers.length+1  && value<int_rounds.length+1+test_papers.length && <InterviewTable int_rounds={int_rounds} index={value-1-test_papers.length} img_year={IMGYear} season_id={season_id}/>}
         {value>=test_papers.length+1+int_rounds.length && <Selected  int_rounds={int_rounds} season_id={season_id}/>}
         </>
     )

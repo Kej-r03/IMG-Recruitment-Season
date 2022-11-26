@@ -137,8 +137,10 @@ function AfterLoginPage(props){
                     Create Season
                 </Button>
                 <Modal open={openModal} onClose={handleClose}>
-                    <Box  sx={{height:"20vh", width:"20vw", position:"absolute", bgcolor:"background.paper", boxShadow:24, top:"50%",left:"50%",transform: 'translate(-50%, -50%)', p:3}}>
+                    <Box  sx={{height:"27vh", width:"20vw", position:"absolute", bgcolor:"background.paper", boxShadow:24, top:"50%",left:"50%",transform: 'translate(-50%, -50%)', p:3,borderRadius:2.5}}>
                     
+                    <Typography sx={{mb:3,fontSize:20,fontWeight:'bold'}}>Create Season</Typography>
+
                     <FormControl fullWidth sx={{mb:5}}>
                     <InputLabel id="year-label">Year</InputLabel>
                         <Select
@@ -167,7 +169,7 @@ function AfterLoginPage(props){
                         </Select>
                     </FormControl>
 
-                    <Button onClick={()=>{createSeason(year,role)}} sx={{position:"absolute", bottom:5, right:7}}>Submit</Button>
+                    <Button variant="contained" onClick={()=>{createSeason(year,role)}} sx={{position:"absolute", bottom:25, right:25}}>Submit</Button>
                     </Box>
                 </Modal>
 

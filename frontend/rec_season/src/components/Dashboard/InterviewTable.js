@@ -1,9 +1,13 @@
 import React,{useEffect} from 'react';
-import { TableContainer,Table,TableHead,Checkbox,Menu,TableRow,TableCell,Typography, TableBody,TableFooter,TablePagination, FormControl, Select,InputLabel, TextField, Button,Modal, MenuItem} from '@mui/material';
+import { TableContainer,Divider,Table,TableHead,Checkbox,Menu,TableRow,TableCell,Typography, TableBody,TableFooter,TablePagination, FormControl, Select,InputLabel, TextField, Button,Modal, MenuItem} from '@mui/material';
 import axios from 'axios';
 import { Box, height } from '@mui/system';
 import { FormLabel,RadioGroup,Radio,FormControlLabel } from '@mui/material';
 import FilterListIcon from '@mui/icons-material/FilterList';
+import Input from "@material-ui/core/Input";
+// import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
+// import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
+// import { DateTimePicker } from '@mui/x-date-pickers/DateTimePicker';
 
 
 axios.defaults.withCredentials = true;
@@ -12,14 +16,13 @@ axios.defaults.xsrfCookieName = 'csrftoken'
 
 export default function InterviewTable(props)
 {
-    const {int_rounds,index,img_year}=props
+    const {int_rounds,index,img_year,season_id}=props
     const [rows,setRows]=React.useState([])
     useEffect(()=>{
         axios
         .get("http://localhost:8000/int_rounds/get_info/",{params:{int_round_id:int_rounds[index].id}})
         .then(function(response){
             setRows(response.data)
-            console.log(response.data)
             setFilteredRows(response.data)
         })
         setRadioValue('All')
@@ -89,8 +92,12 @@ export default function InterviewTable(props)
 
 
           <Modal open={open} onClose={closeFilter}>
-            <Box sx={{height:"30vh", width:"30vw", position:"absolute", bgcolor:"background.paper", boxShadow:24, top:"30%",right:"5.5vw", p:3}}>
-                <Typography sx={{fontWeight:'bold'}}>Filters</Typography>
+            <Box sx={{height:"30vh", width:"30vw", position:"absolute", bgcolor:"background.paper", boxShadow:24, top:"30%",right:"5.5vw", p:3,borderRadius:2.5}}>
+            <Typography variant="h5" sx={{fontWeight:'bold'}}>Filters</Typography>
+                <br />
+
+                <Divider />
+                <div style={{marginBottom:10, marginTop:10}}>
                 <FormControl>
                     <FormLabel>Evaluation Status</FormLabel>
                     <RadioGroup row value={radioValue} onChange={handleRadioChange}>
@@ -102,19 +109,24 @@ export default function InterviewTable(props)
                         <FormControlLabel value="Done" control={<Radio />} label="Done"/>
                     </RadioGroup>
                 </FormControl>
-                <br /> <br />
+                </div>
                 {img_year>2 &&
+                <>
+                <Divider />
+                <div style={{marginBottom:20, marginTop:10}}>
                 <FormControl>
-                    <FormLabel>Marks</FormLabel>
-                    <div style={{display:'inline-block'}}>
-                        Greater than <input type="number" defaultValue={filterMarks} style={{width:'2vw'}} onChange={changeMarksFilter}  />
-                    </div>
+                    <FormLabel>Marks (Greater than)</FormLabel>
+                    {/* <div style={{display:'inline-block'}}>
+                         <input type="number" defaultValue={filterMarks} style={{width:'2vw'}} onChange={changeMarksFilter}  />
+                    </div> */}
+                    <Input type="number"  defaultValue={filterMarks} onChange={changeMarksFilter} />
                 </FormControl>
+                </div>
+                </>
                 }
-                <br /> <br />
-                <br />
+                
                 <Button onClick={applyFilter} variant="contained" sx={{position:"absolute", right:'8vw'}}>Apply</Button>
-                <Button onClick={resetFilter} variant="contained" sx={{position:"absolute", right:'3vw'}}>Reset</Button>
+                <Button onClick={resetFilter} variant="outlined" sx={{position:"absolute", right:'3vw'}}>Reset</Button>
             </Box>
           </Modal>
 
@@ -137,7 +149,7 @@ export default function InterviewTable(props)
             </TableRow>
         </TableHead>
 
-        <InterviewTableBody rows={filteredRows} this_round_id={int_rounds[index].id} int_rounds={int_rounds} img_year={img_year}/>
+        <InterviewTableBody rows={filteredRows} this_round_id={int_rounds[index].id} int_rounds={int_rounds} img_year={img_year} season_id={season_id}/>
         </Table>
         </TableContainer>
         </>
@@ -149,7 +161,16 @@ export default function InterviewTable(props)
 
 function InterviewTableBody(props){
 
-    const {rows, this_round_id, int_rounds,img_year}=props
+    const {rows, this_round_id, int_rounds,img_year,season_id}=props
+
+    const [panels,setPanels]=React.useState()
+    useEffect(()=>{
+        axios
+        .get("http://localhost:8000/interview_panel/get_panels/",{params:{season_id:season_id}},{withCredentials:true})
+        .then(function(response){
+            setPanels(response.data)
+        })
+    },[])
 
     const [page,setPage]=React.useState(0);
     const[rowsPerPage,setRowsPerPage]=React.useState(5);
@@ -172,9 +193,11 @@ function InterviewTableBody(props){
     let [marks,setMarks]=React.useState('');
     let [remarks,setRemarks]=React.useState('');
     const [rowID,setRowID]=React.useState(-1);
+    let [panelID,setPanelID]=React.useState('');
+
     const [openModal,setOpenModal]=React.useState(false)
-    const handleOpenModal= (id,status,callNotes,marks,remarks,timing) => {setOpenModal(true);setRowID(id);setStatus(status);setCallNotes(callNotes);setMarks(marks);setRemarks(remarks);setTiming(timing);};
-    const handleClose = () => {setOpenModal(false);setRowID(-1);setStatus(null);setCallNotes('');setMarks('');setRemarks('');setTiming('');};
+    const handleOpenModal= (id,status,callNotes,marks,remarks,p_id,timing) => {setOpenModal(true);setRowID(id);setStatus(status);setCallNotes(callNotes);setMarks(marks);setPanelID(p_id);setRemarks(remarks);setTiming(timing);};
+    const handleClose = () => {setOpenModal(false);setRowID(-1);setStatus(null);setCallNotes('');setMarks('');setPanelID('');setRemarks('');setTiming('');};
     const handleStatusChange=(event)=>{
         setStatus(event.target.value)
     }
@@ -183,6 +206,9 @@ function InterviewTableBody(props){
     }
     const handleTimingChange=(event)=>{
         setTiming(event.target.value)
+    }
+    const handlePanelID=(event)=>{
+        setPanelID(event.target.value)
     }
     const handleMarksChange=(event)=>{
         setMarks(event.target.value)
@@ -193,7 +219,7 @@ function InterviewTableBody(props){
     const changeMarksRemarks=(marks,remarks)=>{
         if(marks=="")
         marks=null
-        const params=JSON.stringify({"marks":marks,"remarks":remarks,"interview_id":rowID,"status":status,"callNotes":callNotes,"timing":timing});
+        const params=JSON.stringify({"marks":marks,"remarks":remarks,"interview_id":rowID,"status":status,"callNotes":callNotes,"panelID":panelID,"timing":timing});
         axios
         .post("http://localhost:8000/interviewresponse/update_marks/",params,{headers:{"Content-Type":"application/json"}},{withCredentials:true})
         handleClose()
@@ -288,10 +314,10 @@ function InterviewTableBody(props){
             <TableCell>{index+1}</TableCell>
             <TableCell>{row.name}</TableCell>
             <TableCell>{row.phone}</TableCell>
-            <TableCell onClick={()=>{handleOpenModal(row.id,row.status,row.call_notes,row.marks,row.remarks,row.slot_timing)}} >{row.status}</TableCell>
-            <TableCell onClick={()=>{handleOpenModal(row.id,row.status,row.call_notes,row.marks,row.remarks,row.slot_timing)}} >{row.call_notes}</TableCell>
-            <TableCell>{row.panelID}</TableCell>
-            <TableCell onClick={()=>{handleOpenModal(row.id,row.status,row.call_notes,row.marks,row.remarks,row.slot_timing)}} >{row.slot_timing && row.slot_timing.substring(0,10)+" / "+row.slot_timing.substring(11,19)}</TableCell>
+            <TableCell onClick={()=>{handleOpenModal(row.id,row.status,row.call_notes,row.marks,row.remarks,row.panelID,row.slot_timing)}} >{row.status}</TableCell>
+            <TableCell onClick={()=>{handleOpenModal(row.id,row.status,row.call_notes,row.marks,row.remarks,row.panelID,row.slot_timing)}} >{row.call_notes}</TableCell>
+            <TableCell onClick={()=>{handleOpenModal(row.id,row.status,row.call_notes,row.marks,row.remarks,row.panelID,row.slot_timing)}}>{row.panelID}</TableCell>
+            <TableCell onClick={()=>{handleOpenModal(row.id,row.status,row.call_notes,row.marks,row.remarks,row.panelID,row.slot_timing)}} >{row.slot_timing && row.slot_timing.substring(0,10)+" / "+row.slot_timing.substring(11,19)}</TableCell>
             {img_year>2 &&
             <>
             <TableCell onClick={()=>{handleOpenModal(row.id,row.status,row.call_notes,row.marks,row.remarks,row.slot_timing)}} >{row.marks}</TableCell>
@@ -329,12 +355,12 @@ function InterviewTableBody(props){
 
 
         <Modal open={openModal} onClose={handleClose}>
-            <Box sx={{height:"50vh", width:"20vw", position:"absolute", bgcolor:"background.paper", boxShadow:24, top:"50%",left:"50%",transform: 'translate(-50%, -50%)', p:3}}>
+            <Box sx={{height:"60vh", width:"20vw", position:"absolute", bgcolor:"background.paper", boxShadow:24, top:"50%",left:"50%",transform: 'translate(-50%, -50%)', p:3,borderRadius:2.5}}>
                 <Typography sx={{mb:3,fontSize:20,fontWeight:'bold'}}>Update Interview Details</Typography>
-
+                <br />
                 <FormControl sx={{mb:3}}>
-                    <Typography>Enter Interview Status</Typography>
-                    <Select defaultValue={status} onChange={handleStatusChange}>
+                    <InputLabel id="int_status">Interview Status</InputLabel>
+                    <Select labelID="int_status" label="Interview Status" defaultValue={status} onChange={handleStatusChange} sx={{width:'20vw'}}>
                         <MenuItem value="Called">Called</MenuItem>
                         <MenuItem value="Not Called">Not Called</MenuItem>
                         <MenuItem value="Ongoing">Ongoing</MenuItem>
@@ -342,29 +368,36 @@ function InterviewTableBody(props){
                         <MenuItem value="Done">Done</MenuItem>
                     </Select>
                 </FormControl>
+                <br />
                 <FormControl sx={{mb:3}}>
-                    <Typography>Enter Call Notes</Typography>
-                    <TextField defaultValue={callNotes} onChange={handleCallNotesChange} />
+                    <TextField label="Enter Call Notes" defaultValue={callNotes} onChange={handleCallNotesChange} sx={{width:'20vw'}}/>
                 </FormControl>
+                
                 <FormControl sx={{mb:3}}>
-                    <Typography>Update Slot Timing</Typography>
-                    <input type="datetime-local" onChange={handleTimingChange} />
+                    <InputLabel id="panel_id">Panel ID</InputLabel>
+                    <Select labelID="panel_id" label="Panel ID" value={panelID} onChange={handlePanelID} sx={{width:'20vw'}}>
+                        {panels && panels.map((panel)=>(
+                            <MenuItem value={panel}>{panel}</MenuItem>
+                        ))}
+                    </Select>
+                </FormControl>
+                <br /><br />
+                <FormControl sx={{mb:3}}>
+                    <TextField label="Slot-Timing" type="datetime-local" onChange={handleTimingChange} InputLabelProps={{shrink: true,}} sx={{width:'20vw'}}/>                    
                 </FormControl>
 
                 {img_year>2 &&
                 <>
                 <FormControl sx={{mb:3}}>
-                    <Typography>Enter Marks</Typography>
-                    <input type="number" defaultValue={marks} onChange={handleMarksChange}/>
+                    <TextField label="Enter Marks" type="number" defaultValue={marks} onChange={handleMarksChange} sx={{width:'20vw'}}/>
                 </FormControl>
                 <FormControl>
-                    <Typography>Enter Remarks</Typography>
-                    <TextField defaultValue={remarks} onChange={handleRemarksChange} />
+                    <TextField label="Enter Remarks" defaultValue={remarks} onChange={handleRemarksChange} sx={{width:'20vw'}}/>
                 </FormControl>
                 </>
                 }
 
-                <Button variant="contained" sx={{position:"absolute", right:"2vw", bottom:'2vh'}} onClick={()=>{changeMarksRemarks(marks,remarks)}}>Submit</Button>
+                <Button variant="contained" sx={{position:"absolute", right:"2vw", bottom:'2vh'}} onClick={()=>{changeMarksRemarks(marks,remarks)}}>Update</Button>
             </Box>
             </Modal>
 

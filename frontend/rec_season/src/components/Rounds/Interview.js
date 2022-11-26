@@ -1,12 +1,13 @@
-import { ThemeProvider,TextField,Box,AppBar, Toolbar,Typography,Select,createTheme,FormControl, Grid,Menu,MenuItem,Drawer,List,ListItemButton,Divider,ListItemText,Button, Card,CardContent, Modal} from "@mui/material";
+import { ThemeProvider,TextField,Box,AppBar, Toolbar,Typography,Select,createTheme,FormControl, Grid,Menu,MenuItem,Drawer,List,ListItemButton,Divider,ListItemText,Button, Card,CardContent, Modal, InputLabel} from "@mui/material";
 import { IconButton } from "@mui/material";
 import AccountCircleIcon from '@mui/icons-material/AccountCircle';
 import React, { useEffect } from "react";
 import AddIcon from '@mui/icons-material/Add';
 import axios from "axios";
-import NavBar from './NavBar'
+import NavBar from '../NavBar'
 import { useParams } from "react-router-dom";
-import Account from "./Account";
+import Account from "../Account";
+import Form from "../Form";
 
 const theme=createTheme({
     palette:{
@@ -199,19 +200,27 @@ function InterviewsDisplay(props){
         {interviews!=null && interviews.map((interview,index)=>(
             <>
             <Grid item md={4}>
-            <Card variant="outlined" sx={{cursor:'pointer', height:'75vh'}} onClick={()=>handleEditInterviewModal(index)}>
+            <Card variant="outlined" sx={{cursor:'pointer', height:'780h',border:1}} onClick={()=>handleEditInterviewModal(index)}>
                 <CardContent>
-                    <Typography variant="h4">Interview Details</Typography>
+                    <Typography variant="h5" sx={{ml:2,mb:2}}>Interview ID #{interview.id}</Typography>
                     <Divider />
+                    
                     <Box sx={{p:3}}>
-                    <Typography variant="h5" sx={{fontWeight:'bold'}}>Type:</Typography>
-                    <Typography variant="h6">{interview.type=='T'?"Technical":"HR"}</Typography><br />
-                    <Typography variant="h5" sx={{fontWeight:'bold'}}>Candidate Name:</Typography>
-                    <Typography variant="h6">{interview.candidate_name}</Typography><br />
-                    <Typography variant="h5" sx={{fontWeight:'bold'}}>Candidate Enrolment:</Typography>
-                    <Typography variant="h6">{interview.enrolment}</Typography><br />
-                    <Typography variant="h5" sx={{fontWeight:'bold'}}>Slot Timing:</Typography>
-                    {interview.slot_timing!=null && <Typography>{interview.slot_timing.substring(0,10)+" / "+interview.slot_timing.substring(11,19)}</Typography>}<br />
+                    <Typography sx={{fontWeight:'bold', fontSize:19}}>Type:</Typography>
+                    <Typography sx={{fontSize:27}} >{interview.type=='T'?"Technical":"HR"}</Typography> 
+                    <Divider sx={{mr:15}}/><br />
+                    
+                    <Typography sx={{fontWeight:'bold', fontSize:19}}>Candidate Name:</Typography>
+                    <Typography sx={{fontSize:27}}>{interview.candidate_name}</Typography>
+                    <Divider sx={{mr:15}}/><br />
+                                        
+                    <Typography sx={{fontWeight:'bold', fontSize:19}}>Candidate Enrolment:</Typography>
+                    <Typography sx={{fontSize:27}}>{interview.enrolment}</Typography>
+                    <Divider sx={{mr:15}}/><br />
+                    
+                    <Typography sx={{fontWeight:'bold', fontSize:19}}>Slot Timing:</Typography>
+                    {interview.slot_timing!=null && <Typography sx={{fontSize:27}}>{interview.slot_timing.substring(0,10)+" / "+interview.slot_timing.substring(11,19)}</Typography>}
+                    <Divider sx={{mr:15}}/><br />
                     {/* <Typography variant="h5" sx={{fontWeight:'bold'}}>Location:</Typography>
                     <Typography variant="h6">{interview.location}</Typography><br />
                     <Typography variant="h5" sx={{fontWeight:'bold'}}>Interviewers:</Typography> */}
@@ -223,15 +232,22 @@ function InterviewsDisplay(props){
                     <br />
                     <Typography variant="h5" sx={{fontWeight:'bold'}}>Panel Status:</Typography>
                     <Typography variant="h6">{interview.active=='F'?"Free":interview.active=='B'?"Busy":interview.active=="I"?"Inactive":""}</Typography><br /> */}
-                    <Typography variant="h5" sx={{fontWeight:'bold'}}>PanelID:</Typography>
-                    <Typography variant="h6">{interview.panelID}</Typography><br />
-                    <Typography variant="h5" sx={{fontWeight:'bold'}}>Interview Status:</Typography>
-                    <Typography variant="h6">{interview.status}</Typography><br />
+
+                    <Typography sx={{fontWeight:'bold', fontSize:19}}>PanelID:</Typography>
+                    <Typography sx={{fontSize:27}}>{interview.panelID!=null?interview.panelID:"NA"}</Typography>
+                    <Divider sx={{mr:15}}/><br />
+                    
+                    <Typography sx={{fontWeight:'bold', fontSize:19}}>Interview Status:</Typography>
+                    <Typography sx={{fontSize:27}}>{interview.status}</Typography>
+                    <Divider sx={{mr:15}}/><br />
                     {IMGYear>2 && <>
-                    <Typography variant="h5" sx={{fontWeight:'bold'}}>Marks:</Typography>
-                    <Typography variant="h6">{interview.marks}</Typography><br />
-                    <Typography variant="h5" sx={{fontWeight:'bold'}}>Remarks:</Typography>
-                    <Typography variant="h6">{interview.remarks}</Typography><br />
+                    <Typography sx={{fontWeight:'bold', fontSize:19}}>Marks:</Typography>
+                    <Typography sx={{fontSize:27}}>{interview.marks!=null?interview.marks:"NA"}</Typography>
+                    <Divider sx={{mr:15}}/><br />
+
+                    <Typography sx={{fontWeight:'bold', fontSize:19}}>Remarks:</Typography>
+                    <Typography sx={{fontSize:27}}>{interview.remarks!=""?interview.remarks:"NA"}</Typography>
+                    <Divider sx={{mr:15}}/><br />
                     </>
                     }
                     </Box>
@@ -240,41 +256,43 @@ function InterviewsDisplay(props){
 
 
             <Modal open={openEditInterview} onClose={handleEditInterviewClose}>
-            <Box sx={{height:"40vh", width:"25vw", position:"absolute", bgcolor:"background.paper", boxShadow:24, top:"50%",left:"50%",transform: 'translate(-50%, -50%)', p:3}}>
+            <Box sx={{height:"50vh", width:"20vw", position:"absolute", bgcolor:"background.paper", boxShadow:24, top:"50%",left:"50%",transform: 'translate(-50%, -50%)', p:3,borderRadius:2.5}}>
 
-                <Typography sx={{fontWeight:'bold',fontSize:20}}>Edit Interview Details</Typography>
+                <Typography sx={{fontWeight:'bold',fontSize:20,mb:3}}>Edit Interview Details</Typography>
                     
-                    <Typography>Slot Timing</Typography>
-                    <input type="datetime-local" onChange={handleTimingEdit} defaultValue={timing}/>
+                    <FormControl sx={{mb:3}}>
+                        <TextField label="Slot Timing" type="datetime-local" onChange={handleTimingEdit} defaultValue={timing} InputLabelProps={{shrink: true,}} sx={{width:'15vw'}}/>
+                    </FormControl><br />
                     
+                    <FormControl sx={{mb:3}}>
+                        <InputLabel id="panel_id">Panel ID</InputLabel>
+                        <Select labelID="panel_id" label="Panel ID" value={panelID} onChange={handlePanelID} sx={{width:'15vw'}}>
+                            {panels && panels.map((panel)=>(
+                                <MenuItem value={panel}>{panel}</MenuItem>
+                            ))}
+                        </Select>
+                    </FormControl><br />
 
-                    <Typography>Panel ID</Typography>
-                    <Select value={panelID} onChange={handlePanelID}>
-                        {panels && panels.map((panel)=>(
-                            <MenuItem value={panel}>{panel}</MenuItem>
-                        ))}
-                    </Select>
-
-                    <Typography>Interview Status</Typography>
-                    <Select value={intStatus} onChange={handleIntStatus}>
-                        <MenuItem value="Called">Called</MenuItem>
-                        <MenuItem value="Not Called">Not Called</MenuItem>
-                        <MenuItem value="Ongoing">Ongoing</MenuItem>
-                        <MenuItem value="Waitng">Waiting</MenuItem>
-                        <MenuItem value="Done">Done</MenuItem>
-                    </Select>
+                    <FormControl sx={{mb:3}}>
+                        <InputLabel id="int_stat">Interview Status</InputLabel>
+                        <Select labelID="int_stat" label="Interview Status" value={intStatus} onChange={handleIntStatus} sx={{width:'15vw'}}>
+                            <MenuItem value="Called">Called</MenuItem>
+                            <MenuItem value="Not Called">Not Called</MenuItem>
+                            <MenuItem value="Ongoing">Ongoing</MenuItem>
+                            <MenuItem value="Waitng">Waiting</MenuItem>
+                            <MenuItem value="Done">Done</MenuItem>
+                        </Select> 
+                    </FormControl>
                     <br />
 
                     {IMGYear>2 &&
                     <>
                     <FormControl sx={{mb:3}}>
-                        <Typography>Enter Marks</Typography>
-                        <input type="number" defaultValue={marks} onChange={handleMarksChange}/>
+                        <TextField label="Enter Marks" type="number" defaultValue={marks} onChange={handleMarksChange} sx={{width:'15vw'}}/>
                     </FormControl>
                     <br />
                     <FormControl>
-                        <Typography>Enter Remarks</Typography>
-                        <TextField defaultValue={remarks} onChange={handleRemarksChange} />
+                        <TextField label="Enter Remarks" defaultValue={remarks} onChange={handleRemarksChange} sx={{width:'15vw'}}/>
                     </FormControl>
                     </>
                     }

@@ -2,7 +2,7 @@ import React,{useEffect} from "react"
 import { ThemeProvider,IconButton,Menu,MenuItem,Modal, TextField,Button,Typography,Link,Breadcrumbs,createTheme,AppBar, Paper,Table, TablePagination,TableFooter, Toolbar,Box,Tabs,Tab,Divider, TableContainer, TableHead, TableRow, TableCell, TableBody, TableSortLabel, Checkbox, FormLabel, Radio,RadioGroup, FormControlLabel ,FormControl} from "@mui/material";
 import axios from "axios";
 import FilterListIcon from '@mui/icons-material/FilterList';
-
+import Input from "@material-ui/core/Input";
 
 
 const headCells=[{id:"slno",value:"Sl No"},{id:"name",value:"Name"},{id: "enrolment",value:"Enrolment No"},{id:"eval_status",value:'Evaluation Status'}]
@@ -174,11 +174,13 @@ export default function TestTable(props){
     return(<>
             <Button variant="contained" sx={{position:"absolute", right:'5vw',top:'28vh',width:'10vw'}} startIcon={<FilterListIcon />} onClick={openFilter}>Filter</Button>
             <Modal open={open} onClose={closeFilter}>
-            <Box sx={{height:"25vh", width:"20vw", position:"absolute", bgcolor:"background.paper", boxShadow:24, top:"30%",right:"5.5vw", p:3}}>
+            <Box sx={{height:"40vh", width:"20vw", position:"absolute", bgcolor:"background.paper", boxShadow:24, top:"30%",right:"5.5vw", p:3,borderRadius:2.5}}>
 
-                <Typography sx={{fontWeight:'bold'}}>Filters</Typography>
+                <Typography variant="h5" sx={{fontWeight:'bold'}}>Filters</Typography>
+                <br />
 
-                <div>
+                <Divider />
+                <div style={{marginBottom:10, marginTop:10}}>
                 <FormControl>
                     <FormLabel>Evaluation Status</FormLabel>
                     <RadioGroup row value={radioValue} onChange={handleRadioChange}>
@@ -191,21 +193,25 @@ export default function TestTable(props){
 
                 {img_year>2 &&
                 <>
-                <FormLabel>Sections</FormLabel><br />
+                <Divider />
+                <div style={{marginBottom:20, marginTop:10}}>
+                <FormLabel sx={{mb:50}}>Marks (Greater than)</FormLabel><br />
                 {testSections.map((section)=>(
                     <div>
                     <FormControl>
-                        <div style={{display:'inline-block'}}>
-                        Greater than <input type="number"  style={{width:'2vw'}} onChange={(event)=>{changeSectionFilter(event,section.id)}} defaultValue={getDefaultSectionValue(section.id)} /> for {section.section_name}
+                        <div style={{display:'inline-block',marginTop:10}}>
+                        {/* Greater than <input type="number"  style={{width:'2vw'}} onChange={(event)=>{changeSectionFilter(event,section.id)}} defaultValue={getDefaultSectionValue(section.id)} /> for {section.section_name} */}
+                        <Input type="number"  style={{width:'5vw',pb:10}} onChange={(event)=>{changeSectionFilter(event,section.id)}} defaultValue={getDefaultSectionValue(section.id)} sx={{ml:20}}/> for {section.section_name}
                         </div>
-                </FormControl>
+                    </FormControl>
                 </div>
                 ))}
+                </div>
                 </>
                 }
 
-                <Button variant="contained" onClick={applyFilter}>Apply</Button>
-                <Button variant="contained" onClick={reset}>Reset</Button>
+                <Button variant="contained" sx={{position:'absolute', bottom:'2vh', left:'12vw'}} onClick={applyFilter}>Apply</Button>
+                <Button variant="outlined" sx={{position:'absolute', bottom:'2vh', left:'17vw'}} onClick={reset}>Reset</Button>
                 
             </Box>
             </Modal>
@@ -436,15 +442,13 @@ function EnhancedTableBody(props){
 
 
             <Modal open={openModal} onClose={handleCloseModal}>
-            <Box sx={{height:"20vh", width:"20vw", position:"absolute", bgcolor:"background.paper", boxShadow:24, top:"50%",left:"50%",transform: 'translate(-50%, -50%)', p:3}}>
-                <Typography sx={{mb:3,fontSize:20,fontWeight:'bold'}}>Update Marks and Remarks</Typography>
+            <Box sx={{height:"20vh", width:"20vw", position:"absolute", bgcolor:"background.paper", boxShadow:24, top:"50%",left:"50%",transform: 'translate(-50%, -50%)', p:3,borderRadius:2.5}}>
+                <Typography sx={{mb:3,fontSize:20,fontWeight:'bold'}}>Q_ID{quesID}</Typography>
                 <FormControl sx={{mb:3}}>
-                    <label for="marks">Enter New Marks*</label>
-                    <input type="number" onChange={handleMarksChange} id="marks" placeholder="Mandatory Field" />
+                    <TextField label={"Enter New Marks"} type="number" required onChange={handleMarksChange} />
                 </FormControl>
                 <FormControl>
-                    <label for="remarks">Enter New Remarks</label>
-                    <input type="text" onChange={handleRemarksChange} id="remarks"/>
+                    <TextField label={"Enter New Remarks"} onChange={handleRemarksChange} />
                 </FormControl>
 
                 <Button variant="contained" sx={{position:"absolute", right:"2vw", bottom:'2vh'}} onClick={()=>{changeMarksRemarks(marks,remarks)}}>Submit</Button>

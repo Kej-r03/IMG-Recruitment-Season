@@ -46,6 +46,7 @@ CORS_ALLOW_CREDENTIALS=True
 
 
 INSTALLED_APPS = [
+    'daphne',
     'channels',
     'django.contrib.admin',
     'django.contrib.auth',
@@ -88,10 +89,14 @@ TEMPLATES = [
         },
     },
 ]
-
-WSGI_APPLICATION = 'autumn.wsgi.application'
 ASGI_APPLICATION = 'autumn.asgi.application'
+WSGI_APPLICATION = 'autumn.wsgi.application'
 
+CHANNEL_LAYERS = {
+    "default": {
+        "BACKEND": "channels.layers.InMemoryChannelLayer"
+    }
+}
 
 # Database
 # https://docs.djangoproject.com/en/4.1/ref/settings/#databases

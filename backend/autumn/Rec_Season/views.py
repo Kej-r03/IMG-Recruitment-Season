@@ -131,7 +131,7 @@ class CandidateSeasonDataViewSet(viewsets.ModelViewSet):
                     try:
                         res=TestResponse.objects.get(candidate_id=candidate['id'],question_id=ques['id'])
                         mark=Evaluation.objects.get(id=res.response_id)
-                        mark_list.append((ques['q_id'],mark.marks,mark.remarks))
+                        mark_list.append((ques['id'],mark.marks,mark.remarks))
                         if(mark.marks!=None):
                             sum+=mark.marks
                     except TestResponse.DoesNotExist:
@@ -969,7 +969,7 @@ class TestResponseViewSet(viewsets.ModelViewSet):
         remarks=request.data['remarks']
         ques_id=request.data['ques_id']
         candidate_season_id=request.data['candidate_season_id']
-        ques=TestQuestion.objects.get(q_id=ques_id)
+        ques=TestQuestion.objects.get(id=ques_id)
         if request.user.current_year>2:
             try:
                 test_response=TestResponse.objects.get(candidate_id=candidate_season_id,question_id=ques.id)

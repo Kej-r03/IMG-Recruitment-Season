@@ -12,7 +12,7 @@ import NavBar from "../NavBar";
 import Account from "../Account";
 import { useParams } from "react-router-dom";
 
-
+var ws=new WebSocket("ws://127.0.0.1:8000/ws/ac/")
 
 const theme=createTheme({
     palette:{
@@ -179,7 +179,7 @@ function RoundTab(props){
         
         <Divider />
         
-        {value<test_papers.length &&<TestTable value={value} test_papers={test_papers} int_rounds={int_rounds} img_year={IMGYear}/>}
+        {value<test_papers.length &&<TestTable value={value} test_papers={test_papers} int_rounds={int_rounds} img_year={IMGYear} ws={ws}/>}
         {value==test_papers.length && <Project int_rounds={int_rounds} season_id={season_id} img_year={IMGYear}/>}
         {value>=test_papers.length+1  && value<int_rounds.length+1+test_papers.length && <InterviewTable int_rounds={int_rounds} index={value-1-test_papers.length} img_year={IMGYear} season_id={season_id}/>}
         {value>=test_papers.length+1+int_rounds.length && <Selected  int_rounds={int_rounds} season_id={season_id}/>}

@@ -196,7 +196,7 @@ function InterviewTableBody(props){
     let [panelID,setPanelID]=React.useState('');
 
     const [openModal,setOpenModal]=React.useState(false)
-    const handleOpenModal= (id,status,callNotes,marks,remarks,p_id,timing) => {setOpenModal(true);setRowID(id);setStatus(status);setCallNotes(callNotes);setMarks(marks);setPanelID(p_id);setRemarks(remarks);setTiming(timing);};
+    const handleOpenModal= (id,status,callNotes,marks,remarks,p_id,timing) => {setOpenModal(true);setRowID(id);setStatus(status);setCallNotes(callNotes);setMarks(marks);setPanelID(p_id);setRemarks(remarks);setTiming(timing);console.log(p_id)};
     const handleClose = () => {setOpenModal(false);setRowID(-1);setStatus(null);setCallNotes('');setMarks('');setPanelID('');setRemarks('');setTiming('');};
     const handleStatusChange=(event)=>{
         setStatus(event.target.value)
@@ -320,8 +320,8 @@ function InterviewTableBody(props){
             <TableCell onClick={()=>{handleOpenModal(row.id,row.status,row.call_notes,row.marks,row.remarks,row.panelID,row.slot_timing)}} >{row.slot_timing && row.slot_timing.substring(0,10)+" / "+row.slot_timing.substring(11,19)}</TableCell>
             {img_year>2 &&
             <>
-            <TableCell onClick={()=>{handleOpenModal(row.id,row.status,row.call_notes,row.marks,row.remarks,row.slot_timing)}} >{row.marks}</TableCell>
-            <TableCell onClick={()=>{handleOpenModal(row.id,row.status,row.call_notes,row.marks,row.remarks,row.slot_timing)}} >{row.remarks}</TableCell>          
+            <TableCell onClick={()=>{handleOpenModal(row.id,row.status,row.call_notes,row.marks,row.remarks,row.panelID,row.slot_timing)}} >{row.marks}</TableCell>
+            <TableCell onClick={()=>{handleOpenModal(row.id,row.status,row.call_notes,row.marks,row.remarks,row.panelID,row.slot_timing)}} >{row.remarks}</TableCell>          
             </>
             }
             </TableRow>

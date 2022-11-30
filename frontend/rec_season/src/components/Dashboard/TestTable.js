@@ -249,11 +249,6 @@ function EnhancedTableBody(props){ //ordered rows and filtered rows are same at 
         .then(function(response){
         ws.send(JSON.stringify({"message":"updated"}))
         handleCloseModal()
-        axios
-        .get("http://localhost:8000/candidate_season_data/get_marks/",{params:{paper_id:test_papers[value].id}},{withCredentials:true})
-        .then(function(response){
-            // setReload(!reload)
-        })
         })        
     }
     ws.onmessage=function(e){
@@ -310,7 +305,6 @@ function EnhancedTableBody(props){ //ordered rows and filtered rows are same at 
             .then(function(response){
                 ws.send(JSON.stringify({"message":"updated"}))
                 handleCloseMenu()
-                setReload(!reload)
             })
         }
         
@@ -325,7 +319,6 @@ function EnhancedTableBody(props){ //ordered rows and filtered rows are same at 
             .then(function(response){
                 ws.send(JSON.stringify({"message":"updated"}))
                 handleCloseMenu()
-                setReload(!reload)
             })
         }
         

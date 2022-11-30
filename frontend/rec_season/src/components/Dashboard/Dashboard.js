@@ -180,9 +180,9 @@ function RoundTab(props){
         <Divider />
         
         {value<test_papers.length &&<TestTable value={value} test_papers={test_papers} int_rounds={int_rounds} img_year={IMGYear} ws={ws}/>}
-        {value==test_papers.length && <Project int_rounds={int_rounds} season_id={season_id} img_year={IMGYear}/>}
-        {value>=test_papers.length+1  && value<int_rounds.length+1+test_papers.length && <InterviewTable int_rounds={int_rounds} index={value-1-test_papers.length} img_year={IMGYear} season_id={season_id}/>}
-        {value>=test_papers.length+1+int_rounds.length && <Selected  int_rounds={int_rounds} season_id={season_id}/>}
+        {value==test_papers.length && <Project int_rounds={int_rounds} season_id={season_id} img_year={IMGYear} ws={ws}/>}
+        {value>=test_papers.length+1  && value<int_rounds.length+1+test_papers.length && <InterviewTable int_rounds={int_rounds} index={value-1-test_papers.length} img_year={IMGYear} season_id={season_id} ws={ws}/>}
+        {value>=test_papers.length+1+int_rounds.length && <Selected  int_rounds={int_rounds} season_id={season_id} ws={ws}/>}
         </>
     )
 }

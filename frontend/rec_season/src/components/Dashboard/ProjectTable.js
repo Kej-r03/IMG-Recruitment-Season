@@ -14,8 +14,40 @@ axios.defaults.xsrfCookieName = 'csrftoken'
 
 export default function Project(props)
 {
-    const {int_rounds,season_id,img_year}=props
+    const {int_rounds,season_id,img_year,ws}=props
+    
+    if(img_year>2)
+    var headCells=[{id:'slno',value:"Sl No"},{id:'name',value:'Name'},{id:'enrolment',value:'Enrolment No'},{id:'project_name',value:'Project Name'},{id:'marks',value:'Marks'},{id:'remarks',value:'Remarks'}]
+    else
+    var headCells=[{id:'slno',value:"Sl No"},{id:'name',value:'Name'},{id:'enrolment',value:'Enrolment No'},{id:'project_name',value:'Project Name'}]
+
+    return(
+        <>
+
+        <TableContainer>
+            <Table>
+                <TableHead>
+                        <TableRow>
+                            <TableCell padding="checkbox"></TableCell>
+                            {headCells.map((header)=>(
+                                <TableCell><Typography sx={{fontWeight:'bold', fontSize:20}}>{header.value}</Typography></TableCell>
+                            ))}
+                        </TableRow>
+                </TableHead>
+                <ProjectTableBody int_rounds={int_rounds} img_year={img_year} season_id={season_id} ws={ws}/>
+            </Table>
+        </TableContainer>
+        </>
+    )
+}
+
+
+function ProjectTableBody(props){
+    const {int_rounds,img_year,season_id,ws}=props
+
+    const [reload,setReload]=React.useState(false)
     const [rows,setRows]=React.useState([])
+    const [filteredRows,setFilteredRows]=React.useState([])
     useEffect(()=>{
         axios
         .get("http://localhost:8000/candidate_season_data/get_project_info/",{params:{season_id:season_id}},{withCredentials:true})
@@ -23,22 +55,19 @@ export default function Project(props)
             setRows(response.data)
             setFilteredRows(response.data)
         })
-    },[])
+    },[reload])
 
-    
-    if(img_year>2)
-    var headCells=[{id:'slno',value:"Sl No"},{id:'name',value:'Name'},{id:'enrolment',value:'Enrolment No'},{id:'project_name',value:'Project Name'},{id:'marks',value:'Marks'},{id:'remarks',value:'Remarks'}]
-    else
-    var headCells=[{id:'slno',value:"Sl No"},{id:'name',value:'Name'},{id:'enrolment',value:'Enrolment No'},{id:'project_name',value:'Project Name'}]
-
+    ws.onmessage=function(e){
+        if(JSON.parse(e.data)['message']=='updated')
+        setReload(!reload)
+    }
 
 
     //filter
-    const [open, setOpen] = React.useState(false);
-    const openFilter = () => setOpen(true);
-    const closeFilter = () => {setOpen(false);setFilterMarks()}
+    const [openF, setOpenF] = React.useState(false);
+    const openFilter = () => setOpenF(true);
+    const closeFilter = () => {setOpenF(false);setFilterMarks()}
     const [filterMarks,setFilterMarks]=React.useState()
-    const [filteredRows,setFilteredRows]=React.useState([])
     const changeMarksFilter=(event)=>{
         setFilterMarks(event.target.value)
     }
@@ -57,56 +86,9 @@ export default function Project(props)
         closeFilter()
         setFilteredRows(rows)
     }
-    return(
-        <>
-        {img_year>2 && <Button variant="contained" sx={{position:"absolute", right:'5vw',top:'28vh',width:'10vw'}} startIcon={<FilterListIcon />} onClick={openFilter}>Filter</Button>}
-
-            <Modal open={open} onClose={closeFilter}>
-            <Box sx={{height:"20vh", width:"15vw", position:"absolute", bgcolor:"background.paper", boxShadow:24, top:"30%",right:"5.5vw", p:3,borderRadius:2.5}}>
-
-                <Typography variant="h5" sx={{fontWeight:'bold'}}>Filters</Typography>
-                <br />
-
-                {img_year>2 && 
-                <>                
-                <Divider />
-                <div style={{ marginTop:10}}>
-                <FormControl>
-                    <FormLabel sx={{position:'relative', top:20}}>Marks (Greater than)</FormLabel><br />
-                    <Input type="number"  defaultValue={filterMarks} onChange={(event)=>{changeMarksFilter(event)}} />
-                </FormControl>
-                </div>
-                </>
-                }
-
-                <Button variant="contained" onClick={applyFilter} sx={{position:"absolute", right:'7vw', bottom:'2vh'}}>Apply</Button>
-                <Button variant="outlined" onClick={resetFilter} sx={{position:"absolute", right:'2vw', bottom:'2vh'}}>Reset</Button>
-                
-            </Box>
-            </Modal>
 
 
-        <TableContainer>
-            <Table>
-                <TableHead>
-                        <TableRow>
-                            <TableCell padding="checkbox"></TableCell>
-                            {headCells.map((header)=>(
-                                <TableCell><Typography sx={{fontWeight:'bold', fontSize:20}}>{header.value}</Typography></TableCell>
-                            ))}
-                        </TableRow>
-                </TableHead>
-                <ProjectTableBody rows={filteredRows} int_rounds={int_rounds} img_year={img_year}/>
-            </Table>
-        </TableContainer>
-        </>
-    )
-}
-
-
-function ProjectTableBody(props){
-    const {rows,int_rounds,img_year}=props
-
+    //page numbering
     const [page,setPage]=React.useState(0);
     const[rowsPerPage,setRowsPerPage]=React.useState(5);
     const handleChangePage=(event,newPage) => {
@@ -120,6 +102,8 @@ function ProjectTableBody(props){
 
 
 
+
+    //update marks and remarks
     const [openModal,setOpenModal]=React.useState(false)
     const [openModalValue,setOpenModalValue]=React.useState(-1)
     const handleOpenModal=(id)=>{setOpenModal(true);setOpenModalValue(id)}
@@ -140,7 +124,7 @@ function ProjectTableBody(props){
         .post(url,params,{headers:{"Content-Type":'application/json'}},{withCredentials:true})
         .then(function(response){
             handleCloseModal()
-            window.location.href=window.location.href  
+            ws.send(JSON.stringify({"message":"updated"}))
         })
     }
 
@@ -184,8 +168,11 @@ function ProjectTableBody(props){
             const params=JSON.stringify({"id":selected[i]})
             axios
             .post("http://localhost:8000/candidate_season_data/move_to_selected/",params,{headers:{'Content-Type':'application/json'}},{withCredentials:true})
+            .then(function(response){
+                ws.send(JSON.stringify({"message":"updated"}))
+                handleCloseMenu()
+            })
         }
-        window.location.href=window.location.href
 
     }
     const moveToInterview=(round_id)=>{
@@ -195,14 +182,44 @@ function ProjectTableBody(props){
             axios
             .post("http://localhost:8000/candidate_season_data/move_to_interview/",params,{headers:{'Content-Type':'application/json'}},{withCredentials:true})
             .then(function(response){
-                window.location.href=window.location.href
+                ws.send(JSON.stringify({"message":"updated"}))
+                handleCloseMenu()
             })
         }
     }
     return(
         <>
+        {img_year>2 && <Button variant="contained" sx={{position:"absolute", right:'5vw',top:'28vh',width:'10vw'}} startIcon={<FilterListIcon />} onClick={openFilter}>Filter</Button>}
+
+        <Modal open={openF} onClose={closeFilter}>
+        <Box sx={{height:"20vh", width:"15vw", position:"absolute", bgcolor:"background.paper", boxShadow:24, top:"30%",right:"5.5vw", p:3,borderRadius:2.5}}>
+
+            <Typography variant="h5" sx={{fontWeight:'bold'}}>Filters</Typography>
+            <br />
+
+            {img_year>2 && 
+            <>                
+            <Divider />
+            <div style={{ marginTop:10}}>
+            <FormControl>
+                <FormLabel sx={{position:'relative', top:20}}>Marks (Greater than)</FormLabel><br />
+                <Input type="number"  defaultValue={filterMarks} onChange={(event)=>{changeMarksFilter(event)}} />
+            </FormControl>
+            </div>
+            </>
+            }
+
+            <Button variant="contained" onClick={applyFilter} sx={{position:"absolute", right:'7vw', bottom:'2vh'}}>Apply</Button>
+            <Button variant="outlined" onClick={resetFilter} sx={{position:"absolute", right:'2vw', bottom:'2vh'}}>Reset</Button>
+            
+        </Box>
+        </Modal>
+
+
+
+
         <TableBody>
-            {(rows.slice(page*rowsPerPage,(page+1)*rowsPerPage)).map((row,index)=>{
+            {(filteredRows.slice(page*rowsPerPage,(page+1)*rowsPerPage)).map((row,index)=>{
                  const isItemSelected = isSelected(row.id);
                  return(
                      <>
@@ -252,6 +269,9 @@ function ProjectTableBody(props){
                 </>
             )})}
         </TableBody>
+
+
+
 
         <TableFooter>
         <Button variant="contained" sx={{height:'4vh', width:'10vw', mt:2}} onClick={openMenu}>Move to  Round</Button>

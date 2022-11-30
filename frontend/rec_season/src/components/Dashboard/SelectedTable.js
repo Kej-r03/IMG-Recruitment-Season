@@ -8,7 +8,12 @@ axios.defaults.xsrfCookieName = 'csrftoken'
 const headers=[{value:'Sl No'},{value:'Name'},{value:'Enrolment No'},{value:'Branch'},{value:'Email'},{value:'Phone'}]
 export default function Selected(props){
 
-    const {int_rounds,season_id}=props
+    const {int_rounds,season_id,ws}=props
+
+    const [reload,setReload]=React.useState(false)
+
+
+    //page numbering
     const [page,setPage]=React.useState(0);
     const[rowsPerPage,setRowsPerPage]=React.useState(5);
     const handleChangePage=(event,newPage) => {
@@ -30,9 +35,12 @@ export default function Selected(props){
         .then(function(response){
             setRows(response.data)
         })
-    },[])
+    },[reload])
     
-
+    ws.onmessage=function(e){
+        if(JSON.parse(e.data)['message']=='updated')
+        setReload(!reload)
+    }
 
 
     //move to menu
@@ -55,7 +63,6 @@ export default function Selected(props){
           );
         }
         setSelected(newSelected);
-        console.log(newSelected)
       };    
     const [open,setOpen]=React.useState(false)
     const [anchorEl,setAnchorEl]=React.useState(null)
@@ -74,8 +81,11 @@ export default function Selected(props){
             const params=JSON.stringify({"id":selected[i]})
             axios
             .post("http://localhost:8000/candidate_season_data/move_to_test/",params,{headers:{'Content-Type':'application/json'}},{withCredentials:true})
+            .then(function(response){
+                ws.send(JSON.stringify({"message":"updated"}))
+                handleCloseMenu()
+            })
         }
-        window.location.href=window.location.href
 
     }
     const moveToInterview=(round_id)=>{
@@ -84,8 +94,11 @@ export default function Selected(props){
             const params=JSON.stringify({"candidate_id":selected[i],"round_id":round_id})
             axios
             .post("http://localhost:8000/candidate_season_data/move_to_interview/",params,{headers:{'Content-Type':'application/json'}},{withCredentials:true})
+            .then(function(response){
+                ws.send(JSON.stringify({"message":"updated"}))
+                handleCloseMenu()
+            })
         }
-        window.location.href=window.location.href
     }
     return(<>
 

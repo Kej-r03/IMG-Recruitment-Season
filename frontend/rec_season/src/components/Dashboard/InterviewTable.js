@@ -16,18 +16,7 @@ axios.defaults.xsrfCookieName = 'csrftoken'
 
 export default function InterviewTable(props)
 {
-    const {int_rounds,index,img_year,season_id}=props
-    const [rows,setRows]=React.useState([])
-    useEffect(()=>{
-        axios
-        .get("http://localhost:8000/int_rounds/get_info/",{params:{int_round_id:int_rounds[index].id}})
-        .then(function(response){
-            setRows(response.data)
-            setFilteredRows(response.data)
-        })
-        setRadioValue('All')
-        setFilterMarks()
-    },[index])
+    const {int_rounds,index,img_year,season_id,ws}=props
 
 
     if(img_year>2)
@@ -37,16 +26,70 @@ export default function InterviewTable(props)
 
 
 
+    return(<>
+        <TableContainer>
+        <Table>
+        <TableHead>
+            <TableRow>
+            <TableCell padding="checkbox"></TableCell>
+            {headers.map((header)=>(
+                    <TableCell>
+                        <Typography sx={{fontWeight:'bold', fontSize:20}}>
+                           {header.value}
+                           </Typography>
+                    </TableCell>
+                ))}
+            </TableRow>
+        </TableHead>
 
+        <InterviewTableBody  this_round_id={int_rounds[index].id} int_rounds={int_rounds} img_year={img_year} season_id={season_id} index={index} ws={ws}/>
+        </Table>
+        </TableContainer>
+        </>
+    )
+}
+
+
+
+
+function InterviewTableBody(props){
+
+    const {this_round_id, int_rounds,img_year,season_id,index,ws}=props
+
+    const [reload,setReload]=React.useState(false)
+    const [rows,setRows]=React.useState([])
+    const [filteredRows,setFilteredRows]=React.useState([])
+    const [panels,setPanels]=React.useState()
+    useEffect(()=>{
+        axios
+        .get("http://localhost:8000/interview_panel/get_panels/",{params:{season_id:season_id}},{withCredentials:true})
+        .then(function(response){
+            setPanels(response.data)
+        })
+        axios
+        .get("http://localhost:8000/int_rounds/get_info/",{params:{int_round_id:int_rounds[index].id}})
+        .then(function(response){
+            setRows(response.data)
+            setFilteredRows(response.data)
+        })
+        setRadioValue('All')
+        setFilterMarks()
+    },[reload,index])
+
+
+
+    ws.onmessage=function(e){
+        if(JSON.parse(e.data)['message']=='updated')
+        setReload(!reload)
+    }
 
 
     //filter
-    const [open, setOpen] = React.useState(false);
-    const openFilter = () => setOpen(true);
-    const closeFilter = () => {setOpen(false);setRadioValue('All');setFilterMarks()}    
+    const [openF, setOpenF] = React.useState(false);
+    const openFilter = () => setOpenF(true);
+    const closeFilter = () => {setOpenF(false);setRadioValue('All');setFilterMarks()}    
     const [radioValue,setRadioValue]=React.useState('All')
     const [filterMarks,setFilterMarks]=React.useState()
-    const [filteredRows,setFilteredRows]=React.useState([])
     const handleRadioChange=(event)=>{
         setRadioValue(event.target.value)
     }
@@ -84,94 +127,7 @@ export default function InterviewTable(props)
 
 
 
-
-    return(<>
-        <Button variant="contained" sx={{position:"absolute", right:'5vw',top:'28vh',width:'10vw'}} startIcon={<FilterListIcon />} onClick={openFilter}>Filter</Button>
-
-
-
-
-          <Modal open={open} onClose={closeFilter}>
-            <Box sx={{height:"30vh", width:"30vw", position:"absolute", bgcolor:"background.paper", boxShadow:24, top:"30%",right:"5.5vw", p:3,borderRadius:2.5}}>
-            <Typography variant="h5" sx={{fontWeight:'bold'}}>Filters</Typography>
-                <br />
-
-                <Divider />
-                <div style={{marginBottom:10, marginTop:10}}>
-                <FormControl>
-                    <FormLabel>Evaluation Status</FormLabel>
-                    <RadioGroup row value={radioValue} onChange={handleRadioChange}>
-                        <FormControlLabel value="All" control={<Radio />} label="All"/>
-                        <FormControlLabel value="Called" control={<Radio />} label="Called"/>
-                        <FormControlLabel value="Not Called" control={<Radio />} label="Not Called"/>
-                        <FormControlLabel value="Ongoing" control={<Radio />} label="Ongoing"/>
-                        <FormControlLabel value="Waiting" control={<Radio />} label="Waiting"/>
-                        <FormControlLabel value="Done" control={<Radio />} label="Done"/>
-                    </RadioGroup>
-                </FormControl>
-                </div>
-                {img_year>2 &&
-                <>
-                <Divider />
-                <div style={{marginBottom:20, marginTop:10}}>
-                <FormControl>
-                    <FormLabel>Marks (Greater than)</FormLabel>
-                    {/* <div style={{display:'inline-block'}}>
-                         <input type="number" defaultValue={filterMarks} style={{width:'2vw'}} onChange={changeMarksFilter}  />
-                    </div> */}
-                    <Input type="number"  defaultValue={filterMarks} onChange={changeMarksFilter} />
-                </FormControl>
-                </div>
-                </>
-                }
-                
-                <Button onClick={applyFilter} variant="contained" sx={{position:"absolute", right:'8vw'}}>Apply</Button>
-                <Button onClick={resetFilter} variant="outlined" sx={{position:"absolute", right:'3vw'}}>Reset</Button>
-            </Box>
-          </Modal>
-
-
-
-
-
-        <TableContainer>
-        <Table>
-        <TableHead>
-            <TableRow>
-            <TableCell padding="checkbox"></TableCell>
-            {headers.map((header)=>(
-                    <TableCell>
-                        <Typography sx={{fontWeight:'bold', fontSize:20}}>
-                           {header.value}
-                           </Typography>
-                    </TableCell>
-                ))}
-            </TableRow>
-        </TableHead>
-
-        <InterviewTableBody rows={filteredRows} this_round_id={int_rounds[index].id} int_rounds={int_rounds} img_year={img_year} season_id={season_id}/>
-        </Table>
-        </TableContainer>
-        </>
-    )
-}
-
-
-
-
-function InterviewTableBody(props){
-
-    const {rows, this_round_id, int_rounds,img_year,season_id}=props
-
-    const [panels,setPanels]=React.useState()
-    useEffect(()=>{
-        axios
-        .get("http://localhost:8000/interview_panel/get_panels/",{params:{season_id:season_id}},{withCredentials:true})
-        .then(function(response){
-            setPanels(response.data)
-        })
-    },[])
-
+    //page numbering
     const [page,setPage]=React.useState(0);
     const[rowsPerPage,setRowsPerPage]=React.useState(5);
     const handleChangePage=(event,newPage) => {
@@ -222,11 +178,11 @@ function InterviewTableBody(props){
         const params=JSON.stringify({"marks":marks,"remarks":remarks,"interview_id":rowID,"status":status,"callNotes":callNotes,"panelID":panelID,"timing":timing});
         axios
         .post("http://localhost:8000/interviewresponse/update_marks/",params,{headers:{"Content-Type":"application/json"}},{withCredentials:true})
-        handleClose()
-        window.location.href=window.location.href        
+        .then(function(response){
+            handleClose()
+            ws.send(JSON.stringify({"message":"updated"})) 
+        })     
     }
-
-
 
 
     
@@ -270,7 +226,8 @@ function InterviewTableBody(props){
             axios
             .post("http://localhost:8000/candidate_season_data/move_to_test/",params,{headers:{'Content-Type':'application/json'}},{withCredentials:true})
             .then(function(response){
-                window.location.href=window.location.href
+                ws.send(JSON.stringify({"message":"updated"}))
+                handleCloseMenu()
             })
         }
         
@@ -282,7 +239,8 @@ function InterviewTableBody(props){
             axios
             .post("http://localhost:8000/candidate_season_data/move_to_selected/",params,{headers:{'Content-Type':'application/json'}},{withCredentials:true})
             .then(function(response){
-                window.location.href=window.location.href
+                ws.send(JSON.stringify({"message":"updated"}))
+                handleCloseMenu()
             })
         }
 
@@ -294,7 +252,8 @@ function InterviewTableBody(props){
             axios
             .post("http://localhost:8000/candidate_season_data/move_to_interview/",params,{headers:{'Content-Type':'application/json'}},{withCredentials:true})
             .then(function(response){
-                window.location.href=window.location.href
+                ws.send(JSON.stringify({"message":"updated"}))
+                handleCloseMenu()
             })
         }
     }
@@ -305,8 +264,52 @@ function InterviewTableBody(props){
 
     return(
         <>
+        <Button variant="contained" sx={{position:"absolute", right:'5vw',top:'28vh',width:'10vw'}} startIcon={<FilterListIcon />} onClick={openFilter}>Filter</Button>
+        <Modal open={openF} onClose={closeFilter}>
+            <Box sx={{height:"30vh", width:"30vw", position:"absolute", bgcolor:"background.paper", boxShadow:24, top:"30%",right:"5.5vw", p:3,borderRadius:2.5}}>
+            <Typography variant="h5" sx={{fontWeight:'bold'}}>Filters</Typography>
+                <br />
+
+                <Divider />
+                <div style={{marginBottom:10, marginTop:10}}>
+                <FormControl>
+                    <FormLabel>Evaluation Status</FormLabel>
+                    <RadioGroup row value={radioValue} onChange={handleRadioChange}>
+                        <FormControlLabel value="All" control={<Radio />} label="All"/>
+                        <FormControlLabel value="Called" control={<Radio />} label="Called"/>
+                        <FormControlLabel value="Not Called" control={<Radio />} label="Not Called"/>
+                        <FormControlLabel value="Ongoing" control={<Radio />} label="Ongoing"/>
+                        <FormControlLabel value="Waiting" control={<Radio />} label="Waiting"/>
+                        <FormControlLabel value="Done" control={<Radio />} label="Done"/>
+                    </RadioGroup>
+                </FormControl>
+                </div>
+                {img_year>2 &&
+                <>
+                <Divider />
+                <div style={{marginBottom:20, marginTop:10}}>
+                <FormControl>
+                    <FormLabel>Marks (Greater than)</FormLabel>
+                    {/* <div style={{display:'inline-block'}}>
+                        <input type="number" defaultValue={filterMarks} style={{width:'2vw'}} onChange={changeMarksFilter}  />
+                    </div> */}
+                    <Input type="number"  defaultValue={filterMarks} onChange={changeMarksFilter} />
+                </FormControl>
+                </div>
+                </>
+                }
+                
+                <Button onClick={applyFilter} variant="contained" sx={{position:"absolute", right:'8vw'}}>Apply</Button>
+                <Button onClick={resetFilter} variant="outlined" sx={{position:"absolute", right:'3vw'}}>Reset</Button>
+            </Box>
+            </Modal>
+
+
+
+
+
         <TableBody>
-            {(rows.slice(page*rowsPerPage,(page+1)*rowsPerPage)).map((row,index)=>{
+            {(filteredRows.slice(page*rowsPerPage,(page+1)*rowsPerPage)).map((row,index)=>{
                 const isItemSelected = isSelected(row.candidate_id);
                 return(
             <TableRow hover selected={isItemSelected}  onClick={(event) => handleClick(event, row.candidate_id)} sx={{cursor:'pointer'}}>          
@@ -328,8 +331,10 @@ function InterviewTableBody(props){
             )})}
         </TableBody>
 
-        <TableFooter>
 
+
+
+        <TableFooter>
         <Button variant="contained" sx={{height:'4h', width:'10vw', mt:2}} onClick={openMenu}>Move to  Round</Button>
                 <Menu open={open} anchorEl={anchorEl} onClose={handleCloseMenu} >
                     <MenuItem onClick={()=>{moveToTest()}}>Test Round / Project</MenuItem>
@@ -399,10 +404,7 @@ function InterviewTableBody(props){
 
                 <Button variant="contained" sx={{position:"absolute", right:"2vw", bottom:'2vh'}} onClick={()=>{changeMarksRemarks(marks,remarks)}}>Update</Button>
             </Box>
-            </Modal>
-
-
-            
+            </Modal>         
 
                 
 

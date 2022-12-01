@@ -645,7 +645,8 @@ class InterviewViewSet(viewsets.ModelViewSet):
         status=request.data['intStatus']
         marks=request.data['marks']
         remarks=request.data['remarks']
-        
+        if marks=="":
+            marks=None
         interview=Interview.objects.get(pk=id)
         if status==None or status=="":
             interview.status=None

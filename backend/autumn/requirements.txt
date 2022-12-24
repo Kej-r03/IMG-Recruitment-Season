@@ -76,7 +76,6 @@ jwcrypto==1.4.2
 kazam==1.4.5
 keyring==18.0.1
 kiwisolver==1.0.1
--e git+ssh://git@github.com/Kej-r03/kolibri.git@2b0251f0e4a1d6db38deb775a7b37f5c1acdec24#egg=kolibri
 language-selector==0.1
 launchpadlib==1.10.13
 lazr.restfulclient==0.14.2

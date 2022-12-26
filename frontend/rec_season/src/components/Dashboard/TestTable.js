@@ -3,7 +3,6 @@ import { ThemeProvider,IconButton,Menu,MenuItem,Modal, TextField,Button,Typograp
 import axios from "axios";
 import FilterListIcon from '@mui/icons-material/FilterList';
 import Input from "@material-ui/core/Input";
-import $ from 'jquery';
 
 
 const headCells=[{id:"slno",value:"Sl No"},{id:"name",value:"Name"},{id: "enrolment",value:"Enrolment No"},{id:"eval_status",value:'Evaluation Status'}]
